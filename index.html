@@ -24,337 +24,334 @@
             --font-family: 'Poppins', sans-serif;
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: var(--font-family);
+        background-color: var(--secondary-color);
+        color: var(--text-color);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
+    body.menu-active, body.modal-open { overflow: hidden; }
 
-        body {
-            font-family: var(--font-family);
-            background-color: var(--secondary-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        body.menu-active, body.modal-open { overflow: hidden; }
+    .container {
+        width: 100%;
+        max-width: 800px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
 
-        .container {
-            width: 100%;
-            max-width: 800px;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
+    header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 20px;
+        text-align: center;
+        position: relative;
+    }
 
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
+    header h1 { margin: 0; font-weight: 600; }
 
-        header h1 { margin: 0; font-weight: 600; }
+    #menu-toggle-btn {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: white;
+        font-size: 28px;
+        cursor: pointer;
+    }
 
-        #menu-toggle-btn {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: white;
-            font-size: 28px;
-            cursor: pointer;
-        }
+    /* Side Menu Styles */
+    #side-menu { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background-color: #fff; box-shadow: 2px 0 10px rgba(0,0,0,0.1); transform: translateX(-100%); transition: transform 0.3s ease-in-out; z-index: 2000; display: flex; flex-direction: column; }
+    #side-menu.open { transform: translateX(0); }
+    #menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; }
+    #menu-overlay.active { opacity: 1; pointer-events: auto; }
+    .menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding: 20px; }
+    .menu-header h2 { font-size: 20px; }
+    #close-menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
+    .menu-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
+    .menu-item { margin-bottom: 20px; }
+    .menu-item label { font-weight: 500; display: block; margin-bottom: 8px; }
+    .menu-item select, .menu-item button { 
+        width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 16px; font-family: var(--font-family); cursor: pointer; background: #f9f9f9; text-align: left;
+    }
+    .menu-item button { display: flex; align-items: center; gap: 10px; }
+    .menu-item button:hover { background-color: #eef; }
+    #share-app-btn { background-color: var(--primary-color); color: white; border: none; justify-content: center;}
 
-        /* Side Menu Styles */
-        #side-menu { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background-color: #fff; box-shadow: 2px 0 10px rgba(0,0,0,0.1); transform: translateX(-100%); transition: transform 0.3s ease-in-out; z-index: 2000; display: flex; flex-direction: column; }
-        #side-menu.open { transform: translateX(0); }
-        #menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; }
-        #menu-overlay.active { opacity: 1; pointer-events: auto; }
-        .menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding: 20px; }
-        .menu-header h2 { font-size: 20px; }
-        #close-menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
-        .menu-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
-        .menu-item { margin-bottom: 20px; }
-        .menu-item label { font-weight: 500; display: block; margin-bottom: 8px; }
-        .menu-item select, .menu-item button { 
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 16px; font-family: var(--font-family); cursor: pointer; background: #f9f9f9; text-align: left;
-        }
-        .menu-item button { display: flex; align-items: center; gap: 10px; }
-        .menu-item button:hover { background-color: #eef; }
-        #share-app-btn { background-color: var(--primary-color); color: white; border: none; justify-content: center;}
+    main { padding: 30px; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
+    #questionInput, #subjectSelect { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: var(--font-family); font-size: 16px; transition: border-color 0.3s; }
+    #questionInput:focus, #subjectSelect:focus { outline: none; border-color: var(--primary-color); }
+    #questionInput { resize: vertical; min-height: 120px; }
+    
+    .input-options { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 20px; }
+    .action-buttons { display: flex; gap: 10px; }
+    .action-buttons button, .file-input-wrapper {
+        width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border-color); background-color: #fff; color: #555; font-size: 18px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: background-color 0.2s, color 0.2s;
+    }
+    .action-buttons button:hover, .file-input-wrapper:hover { background-color: var(--secondary-color); color: var(--primary-color); }
+    #micBtn.is-listening { background-color: var(--error-color); color: white; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(217,83,79,.7)} 70%{box-shadow:0 0 0 10px rgba(217,83,79,0)} 100%{box-shadow:0 0 0 0 rgba(217,83,79,0)} }
+    
+    .file-input-wrapper { position: relative; overflow: hidden; }
+    .file-input-wrapper input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    #imagePreview { display: none; max-width: 100%; max-height: 250px; margin: 15px auto; border-radius: 8px; border: 1px solid var(--border-color); }
 
-        main { padding: 30px; }
-        
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
-        #questionInput, #subjectSelect { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: var(--font-family); font-size: 16px; transition: border-color 0.3s; }
-        #questionInput:focus, #subjectSelect:focus { outline: none; border-color: var(--primary-color); }
-        #questionInput { resize: vertical; min-height: 120px; }
-        
-        .input-options { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 20px; }
-        .action-buttons { display: flex; gap: 10px; }
-        .action-buttons button, .file-input-wrapper {
-            width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border-color); background-color: #fff; color: #555; font-size: 18px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: background-color 0.2s, color 0.2s;
-        }
-        .action-buttons button:hover, .file-input-wrapper:hover { background-color: var(--secondary-color); color: var(--primary-color); }
-        #micBtn.is-listening { background-color: var(--error-color); color: white; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(217,83,79,.7)} 70%{box-shadow:0 0 0 10px rgba(217,83,79,0)} 100%{box-shadow:0 0 0 0 rgba(217,83,79,0)} }
-        
-        .file-input-wrapper { position: relative; overflow: hidden; }
-        .file-input-wrapper input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-        #imagePreview { display: none; max-width: 100%; max-height: 250px; margin: 15px auto; border-radius: 8px; border: 1px solid var(--border-color); }
+    #solveBtn { width: 100%; padding: 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; transition: background-color 0.3s; }
+    #solveBtn:disabled { background-color: #a0c3e8; cursor: not-allowed; }
+    #solveBtn:not(:disabled):hover { background-color: #3a7bc8; }
+    .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .error-box { background-color: #f2dede; color: var(--error-color); border: 1px solid #ebccd1; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
+    
+    #result { margin-top: 30px; padding: 25px; background-color: #f9f9f9; border-radius: 8px; border: 1px solid var(--border-color); }
+    .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; }
+    .result-header h3 { margin: 0; }
+    .result-actions { display: flex; gap: 12px; }
+    .result-actions button { background: none; border: 1px solid var(--border-color); color: #555; width: 38px; height: 38px; border-radius: 50%; font-size: 16px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; }
+    .result-actions button:hover { background-color: var(--secondary-color); color: var(--primary-color); }
+    .result-actions button.speaking { color: white; background-color: var(--primary-color); }
 
-        #solveBtn { width: 100%; padding: 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; transition: background-color 0.3s; }
-        #solveBtn:disabled { background-color: #a0c3e8; cursor: not-allowed; }
-        #solveBtn:not(:disabled):hover { background-color: #3a7bc8; }
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .error-box { background-color: #f2dede; color: var(--error-color); border: 1px solid #ebccd1; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
-        
-        #result { margin-top: 30px; padding: 25px; background-color: #f9f9f9; border-radius: 8px; border: 1px solid var(--border-color); }
-        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; }
-        .result-header h3 { margin: 0; }
-        .result-actions { display: flex; gap: 12px; }
-        .result-actions button { background: none; border: 1px solid var(--border-color); color: #555; width: 38px; height: 38px; border-radius: 50%; font-size: 16px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; }
-        .result-actions button:hover { background-color: var(--secondary-color); color: var(--primary-color); }
-        .result-actions button.speaking { color: white; background-color: var(--primary-color); }
+    #resultContent { line-height: 1.7; word-wrap: break-word; }
+    #resultContent * { max-width: 100%; }
+    #resultContent code { background-color: #eef; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+    #resultContent pre { background-color: #2d2d2d; color: #f1f1f1; padding: 15px; border-radius: 8px; overflow-x: auto; }
+    .hidden { display: none !important; }
 
-        #resultContent { line-height: 1.7; word-wrap: break-word; }
-        #resultContent * { max-width: 100%; }
-        #resultContent code { background-color: #eef; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
-        #resultContent pre { background-color: #2d2d2d; color: #f1f1f1; padding: 15px; border-radius: 8px; overflow-x: auto; }
-        .hidden { display: none !important; }
+    /* Modal Styles */
+    .modal {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.6); display: flex;
+        justify-content: center; align-items: center; z-index: 3000;
+        opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+    }
+    .modal.show { opacity: 1; visibility: visible; }
+    .modal .modal-content {
+        background-color: white; padding: 20px; border-radius: 12px;
+        width: 95%; max-width: 700px; max-height: 90vh;
+        display: flex; flex-direction: column; box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+        position: relative; transform: scale(0.9); transition: transform 0.3s;
+    }
+    .modal.show .modal-content { transform: scale(1); }
+    .modal .close-btn {
+        position: absolute; top: 10px; right: 10px; background: #f1f1f1;
+        border: none; color: #555; width: 35px; height: 35px;
+        border-radius: 50%; font-size: 18px; cursor: pointer;
+        display: flex; justify-content: center; align-items: center;
+    }
+    .modal h2 { margin-bottom: 20px; text-align: center; color: var(--primary-color); }
+    
+    /* History & Favorites Modal Styles */
+    .list-modal ul { list-style: none; padding: 0; max-height: 65vh; overflow-y: auto; }
+    .list-item { background-color: #f9f9f9; border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+    .list-item-content { flex-grow: 1; display: flex; align-items: center; gap: 15px; overflow: hidden; cursor: pointer; }
+    .list-item-img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+    .list-item-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .list-item-actions { display: flex; gap: 8px; }
+    .list-item-actions button { width: 38px; height: 38px; border-radius: 50%; padding: 0; font-size: 14px; flex-shrink: 0; border: 1px solid var(--border-color); background: white; cursor: pointer; }
+    .no-items { text-align: center; padding: 40px 20px; color: #888; }
+    #historyModal #downloadHistoryPdfBtn { width: 100%; padding: 12px; margin-bottom: 15px; background: var(--success-color); color: white; border: none; border-radius: 8px; cursor: pointer; }
+    
+    /* Cropper Modal */
+    #cropModal .modal-content { max-width: 90vw; max-height: 90vh; }
+    #cropperContainer { height: 60vh; margin-bottom: 20px; background: #eee; }
+    #imageToCrop { display: block; max-width: 100%; height: 100%; }
+    #cropModal .crop-actions { display:flex; justify-content: flex-end; gap: 10px; }
+    #cropModal button { padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; font-size: 16px; font-family: var(--font-family); }
+    #cropModal #cropBtn { background-color: var(--primary-color); color: white; }
 
-        /* Modal Styles */
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6); display: flex;
-            justify-content: center; align-items: center; z-index: 3000;
-            opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
-        }
-        .modal.show { opacity: 1; visibility: visible; }
-        .modal .modal-content {
-            background-color: white; padding: 20px; border-radius: 12px;
-            width: 95%; max-width: 700px; max-height: 90vh;
-            display: flex; flex-direction: column; box-shadow: 0 5px 25px rgba(0,0,0,0.2);
-            position: relative; transform: scale(0.9); transition: transform 0.3s;
-        }
-        .modal.show .modal-content { transform: scale(1); }
-        .modal .close-btn {
-            position: absolute; top: 10px; right: 10px; background: #f1f1f1;
-            border: none; color: #555; width: 35px; height: 35px;
-            border-radius: 50%; font-size: 18px; cursor: pointer;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .modal h2 { margin-bottom: 20px; text-align: center; color: var(--primary-color); }
-        
-        /* History & Favorites Modal Styles */
-        .list-modal ul { list-style: none; padding: 0; max-height: 65vh; overflow-y: auto; }
-        .list-item { background-color: #f9f9f9; border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
-        .list-item-content { flex-grow: 1; display: flex; align-items: center; gap: 15px; overflow: hidden; cursor: pointer; }
-        .list-item-img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
-        .list-item-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .list-item-actions { display: flex; gap: 8px; }
-        .list-item-actions button { width: 38px; height: 38px; border-radius: 50%; padding: 0; font-size: 14px; flex-shrink: 0; border: 1px solid var(--border-color); background: white; cursor: pointer; }
-        .no-items { text-align: center; padding: 40px 20px; color: #888; }
-        #historyModal #downloadHistoryPdfBtn { width: 100%; padding: 12px; margin-bottom: 15px; background: var(--success-color); color: white; border: none; border-radius: 8px; cursor: pointer; }
-        
-        /* Cropper Modal */
-        #cropModal .modal-content { max-width: 90vw; max-height: 90vh; }
-        #cropperContainer { height: 60vh; margin-bottom: 20px; background: #eee; }
-        #imageToCrop { display: block; max-width: 100%; height: 100%; }
-        #cropModal .crop-actions { display:flex; justify-content: flex-end; gap: 10px; }
-        #cropModal button { padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; font-size: 16px; font-family: var(--font-family); }
-        #cropModal #cropBtn { background-color: var(--primary-color); color: white; }
+    /* NEW: Camera Modal Styles */
+    #cameraModal {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-color: #000;
+        z-index: 4000;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    #cameraVideo { width: 100%; height: 100%; object-fit: cover; }
+    #closeCameraBtn {
+        position: absolute; top: 20px; right: 20px; z-index: 4002;
+        width: 44px; height: 44px; border-radius: 50%; font-size: 20px;
+        background-color: rgba(255,255,255,0.2); color: white; border: none;
+    }
+    .camera-controls {
+        position: absolute; bottom: 30px; left: 50%;
+        transform: translateX(-50%);
+        display: flex; align-items: center; gap: 30px;
+        z-index: 4001;
+    }
+    .camera-controls button {
+        width: 60px; height: 60px; border-radius: 50%;
+        font-size: 24px; color: white;
+        background-color: rgba(255,255,255,0.2);
+        border: 2px solid white;
+        cursor: pointer;
+        display: flex; justify-content: center; align-items: center;
+    }
+    .camera-controls #captureBtn {
+        width: 70px; height: 70px;
+        background-color: var(--primary-color);
+    }
 
-        /* NEW: Camera Modal Styles */
-        #cameraModal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #000;
-            z-index: 4000;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        #cameraVideo { width: 100%; height: 100%; object-fit: cover; }
-        #closeCameraBtn {
-            position: absolute; top: 20px; right: 20px; z-index: 4002;
-            width: 44px; height: 44px; border-radius: 50%; font-size: 20px;
-            background-color: rgba(255,255,255,0.2); color: white; border: none;
-        }
-        .camera-controls {
-            position: absolute; bottom: 30px; left: 50%;
-            transform: translateX(-50%);
-            display: flex; align-items: center; gap: 30px;
-            z-index: 4001;
-        }
-        .camera-controls button {
-            width: 60px; height: 60px; border-radius: 50%;
-            font-size: 24px; color: white;
-            background-color: rgba(255,255,255,0.2);
-            border: 2px solid white;
-            cursor: pointer;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .camera-controls #captureBtn {
-            width: 70px; height: 70px;
-            background-color: var(--primary-color);
-        }
-
-        @media (max-width: 600px) { body { padding: 0; } .container { border-radius: 0; } main { padding: 20px; } }
-    </style>
+    @media (max-width: 600px) { body { padding: 0; } .container { border-radius: 0; } main { padding: 20px; } }
+</style>
 </head>
 <body>
-    
-    <div id="menu-overlay"></div>
+<div id="menu-overlay"></div>
 
-    <!-- Side Menu - Contains all navigation -->
-    <div id="side-menu">
-        <div class="menu-header">
-            <h2>Menu</h2>
-            <button id="close-menu-btn">×</button>
+<!-- Side Menu - Contains all navigation -->
+<div id="side-menu">
+    <div class="menu-header">
+        <h2>Menu</h2>
+        <button id="close-menu-btn">×</button>
+    </div>
+    <div class="menu-content">
+        <div class="menu-item">
+            <label for="language-select-menu">उत्तर की भाषा (Language)</label>
+            <select id="language-select-menu">
+                <option value="en-US">English</option>
+                <option value="hi-IN">हिंदी (Hindi)</option>
+                <option value="bn-IN">Bengali</option>
+                <option value="mr-IN">Marathi</option>
+                <option value="te-IN">Telugu</option>
+            </select>
         </div>
-        <div class="menu-content">
-            <div class="menu-item">
-                <label for="language-select-menu">उत्तर की भाषा (Language)</label>
-                <select id="language-select-menu">
-                    <option value="en-US">English</option>
-                    <option value="hi-IN">हिंदी (Hindi)</option>
-                    <option value="bn-IN">Bengali</option>
-                    <option value="mr-IN">Marathi</option>
-                    <option value="te-IN">Telugu</option>
-                </select>
-            </div>
-            <div class="menu-item">
-                <button id="openHistoryBtn"><i class="fas fa-history"></i> उत्तर इतिहास</button>
-            </div>
-            <div class="menu-item">
-                <button id="openFavoritesBtn"><i class="fas fa-heart"></i> पसंदीदा उत्तर</button>
-            </div>
-            <div class="menu-item">
-                <label>ऐप शेयर करें (Share App)</label>
-                <button id="share-app-btn">Share Now</button>
-            </div>
+        <div class="menu-item">
+            <button id="openHistoryBtn"><i class="fas fa-history"></i> उत्तर इतिहास</button>
+        </div>
+        <div class="menu-item">
+            <button id="openFavoritesBtn"><i class="fas fa-heart"></i> पसंदीदा उत्तर</button>
+        </div>
+        <div class="menu-item">
+            <label>ऐप शेयर करें (Share App)</label>
+            <button id="share-app-btn">Share Now</button>
         </div>
     </div>
+</div>
 
-    <!-- Cropper Modal -->
-    <div id="cropModal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-bottom: 15px; text-align: center;">Crop Image</h3>
-            <div id="cropperContainer">
-                <img id="imageToCrop" src="">
-            </div>
-            <div class="crop-actions">
-                <button id="cancelCropBtn">Cancel</button>
-                <button id="cropBtn">Crop & Use Image</button>
-            </div>
+<!-- Cropper Modal -->
+<div id="cropModal" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-bottom: 15px; text-align: center;">Crop Image</h3>
+        <div id="cropperContainer">
+            <img id="imageToCrop" src="">
+        </div>
+        <div class="crop-actions">
+            <button id="cancelCropBtn">Cancel</button>
+            <button id="cropBtn">Crop & Use Image</button>
         </div>
     </div>
-    
-    <!-- History Modal -->
-    <div class="modal list-modal" id="historyModal">
-        <div class="modal-content">
-            <button class="close-btn" id="closeHistoryBtn"><i class="fas fa-times"></i></button>
-            <h2>📚 उत्तर इतिहास</h2>
-            <button id="downloadHistoryPdfBtn" title="पूरा इतिहास PDF के रूप में डाउनलोड करें">
-                <i class="fas fa-file-pdf"></i> सभी इतिहास PDF डाउनलोड करें
-            </button>
-            <ul id="historyList"></ul>
-            <p id="no-history" class="no-items hidden">No saved history yet.</p>
-        </div>     
-    </div>
+</div>
 
-    <!-- Favorites Modal -->
-    <div class="modal list-modal" id="favoritesModal">
-        <div class="modal-content">
-            <button class="close-btn" id="closeFavoritesBtn"><i class="fas fa-times"></i></button>
-            <h2>❤️ पसंदीदा</h2>
-            <ul id="favoritesList"></ul>
-            <p id="no-favorites" class="no-items hidden">You have no favorite answers yet.</p>
+<!-- History Modal -->
+<div class="modal list-modal" id="historyModal">
+    <div class="modal-content">
+        <button class="close-btn" id="closeHistoryBtn"><i class="fas fa-times"></i></button>
+        <h2>📚 उत्तर इतिहास</h2>
+        <button id="downloadHistoryPdfBtn" title="पूरा इतिहास PDF के रूप में डाउनलोड करें">
+            <i class="fas fa-file-pdf"></i> सभी इतिहास PDF डाउनलोड करें
+        </button>
+        <ul id="historyList"></ul>
+        <p id="no-history" class="no-items hidden">No saved history yet.</p>
+    </div>     
+</div>
+
+<!-- Favorites Modal -->
+<div class="modal list-modal" id="favoritesModal">
+    <div class="modal-content">
+        <button class="close-btn" id="closeFavoritesBtn"><i class="fas fa-times"></i></button>
+        <h2>❤️ पसंदीदा</h2>
+        <ul id="favoritesList"></ul>
+        <p id="no-favorites" class="no-items hidden">You have no favorite answers yet.</p>
+    </div>
+</div>
+
+<!-- NEW: Camera Modal -->
+<div id="cameraModal">
+    <button id="closeCameraBtn"><i class="fas fa-times"></i></button>
+    <video id="cameraVideo" autoplay playsinline></video>
+    <div class="camera-controls">
+        <button id="switchCameraBtn" title="कैमरा बदलें"><i class="fas fa-sync-alt"></i></button>
+        <button id="captureBtn" title="फोटो खींचिए"></button>
+        <button id="flashBtn" title="फ़्लैश टॉगल करें"><i class="fas fa-bolt"></i></button>
+    </div>
+</div>
+
+<div class="container">
+    <header>
+        <button id="menu-toggle-btn">☰</button>
+        <h1>AI Question Solver</h1>
+    </header>
+    <main>
+        <!-- API Key is stored here -->
+        <script id="api-key" type="text/plain">AIzaSyDHy9J04dI8LdK1ijNJMrRXubJ5ucx9rdk</script>
+
+        <div class="form-group">
+            <label for="subjectSelect">Select Subject:</label>
+            <select id="subjectSelect">
+                <option value="math">Math</option>
+                <option value="physics">Physics</option>
+                <option value="chemistry">Chemistry</option>
+                <option value="biology">Biology</option>
+                <option value="english">English</option>
+                <option value="hindi">Hindi</option>
+                <option value="general">General</option>
+                <option value="fitnesse">Fitnesse</option>
+
+            </select>
         </div>
-    </div>
-
-    <!-- NEW: Camera Modal -->
-    <div id="cameraModal">
-        <button id="closeCameraBtn"><i class="fas fa-times"></i></button>
-        <video id="cameraVideo" autoplay playsinline></video>
-        <div class="camera-controls">
-            <button id="switchCameraBtn" title="कैमरा बदलें"><i class="fas fa-sync-alt"></i></button>
-            <button id="captureBtn" title="फोटो खींचिए"></button>
-            <button id="flashBtn" title="फ़्लैश टॉगल करें"><i class="fas fa-bolt"></i></button>
+        <div class="form-group">
+            <label for="questionInput">Enter your question:</label>
+            <textarea id="questionInput" placeholder="Type your question here or use the mic..."></textarea>
         </div>
-    </div>
-
-    <div class="container">
-        <header>
-            <button id="menu-toggle-btn">☰</button>
-            <h1>AI Question Solver</h1>
-        </header>
-        <main>
-            <!-- API Key is stored here -->
-            <script id="api-key" type="text/plain">AIzaSyDHy9J04dI8LdK1ijNJMrRXubJ5ucx9rdk</script>
-
-            <div class="form-group">
-                <label for="subjectSelect">Select Subject:</label>
-                <select id="subjectSelect">
-                    <option value="math">Math</option>
-                    <option value="physics">Physics</option>
-                    <option value="chemistry">Chemistry</option>
-                    <option value="biology">Biology</option>
-                    <option value="english">English</option>
-                    <option value="hindi">Hindi</option>
-                    <option value="general">General</option>
-                    <option value="fitnesse">Fitnesse</option>
-
-                </select>
+        
+        <div class="input-options">
+            <div class="action-buttons">
+                <button id="micBtn" title="अपना प्रश्न बोलें"><i class="fas fa-microphone"></i></button>
+                <button id="cameraBtn" title="छवि कैप्चर करने के लिए कैमरा खोलें"><i class="fas fa-camera"></i></button>
+                <button id="clearInputBtn" title="इनपुट और आउटपुट साफ़ करें"><i class="fas fa-trash-alt"></i></button>
             </div>
-            <div class="form-group">
-                <label for="questionInput">Enter your question:</label>
-                <textarea id="questionInput" placeholder="Type your question here or use the mic..."></textarea>
+            <div class="file-input-wrapper" title="पूछने के लिए एक छवि अपलोड करें">
+                <input type="file" id="imageInput" accept="image/*">
+                <i class="fas fa-image"></i>
             </div>
-            
-            <div class="input-options">
-                <div class="action-buttons">
-                    <button id="micBtn" title="अपना प्रश्न बोलें"><i class="fas fa-microphone"></i></button>
-                    <button id="cameraBtn" title="छवि कैप्चर करने के लिए कैमरा खोलें"><i class="fas fa-camera"></i></button>
-                    <button id="clearInputBtn" title="इनपुट और आउटपुट साफ़ करें"><i class="fas fa-trash-alt"></i></button>
+        </div>
+        
+        <img id="imagePreview" alt="Image Preview">
+
+        <button id="solveBtn">Solve Question</button>
+        <div id="loading" class="hidden"><div class="loader"></div></div>
+        <div id="error" class="error-box hidden"></div>
+
+        <div id="result" class="hidden">
+            <div class="result-header">
+                <h3>Solution:</h3>
+                <div id="result-actions" class="result-actions">
+                    <button id="shareResultBtn" title="Share result"><i class="fas fa-share-alt"></i></button>
+                    <button id="copyResultBtn" title="Copy solution"><i class="fas fa-copy"></i></button>
+                    <button id="speakResultBtn" title="Speak solution"><i class="fas fa-volume-up"></i></button>
+                    <button id="downloadPdfBtn" title="Download as PDF"><i class="fas fa-file-pdf"></i></button>
                 </div>
-                <div class="file-input-wrapper" title="पूछने के लिए एक छवि अपलोड करें">
-                    <input type="file" id="imageInput" accept="image/*">
-                    <i class="fas fa-image"></i>
-                </div>
             </div>
-            
-            <img id="imagePreview" alt="Image Preview">
-
-            <button id="solveBtn">Solve Question</button>
-            <div id="loading" class="hidden"><div class="loader"></div></div>
-            <div id="error" class="error-box hidden"></div>
-
-            <div id="result" class="hidden">
-                <div class="result-header">
-                    <h3>Solution:</h3>
-                    <div id="result-actions" class="result-actions">
-                        <button id="shareResultBtn" title="Share result"><i class="fas fa-share-alt"></i></button>
-                        <button id="copyResultBtn" title="Copy solution"><i class="fas fa-copy"></i></button>
-                        <button id="speakResultBtn" title="Speak solution"><i class="fas fa-volume-up"></i></button>
-                        <button id="downloadPdfBtn" title="Download as PDF"><i class="fas fa-file-pdf"></i></button>
-                    </div>
-                </div>
-                <div id="resultContent"></div>
-            </div>
-        </main>
-    </div>
-
+            <div id="resultContent"></div>
+        </div>
+    </main>
+</div>
 <script>
 class AIQuestionSolverApp {
     constructor() {
@@ -445,9 +442,6 @@ class AIQuestionSolverApp {
         this.clearInputBtn.addEventListener('click', () => this.clearAll());
         this.micBtn.addEventListener('click', () => this.handleMicInput());
         this.imageInput.addEventListener('change', (e) => this.handleImageSelection(e.target.files[0]));
-        
-        // OLD: this.cameraBtn.addEventListener('click', () => this.handleCameraInput());
-        // NEW: Camera button opens the new modal
         this.cameraBtn.addEventListener('click', () => this.openCamera());
         
         // Result Actions
@@ -472,7 +466,7 @@ class AIQuestionSolverApp {
         this.cropBtn.addEventListener('click', () => this.finalizeCrop());
         this.cancelCropBtn.addEventListener('click', () => this.toggleModal('crop', false));
 
-        // NEW: Camera Modal Events
+        // Camera Modal Events
         this.closeCameraBtn.addEventListener('click', () => this.closeCamera());
         this.captureBtn.addEventListener('click', () => this.captureImage());
         this.switchCameraBtn.addEventListener('click', () => this.switchCamera());
@@ -611,7 +605,7 @@ class AIQuestionSolverApp {
         }
     }
     
-    // NEW & UPDATED: Image, Camera & Cropper
+    // Image, Camera & Cropper
     handleImageSelection(file) {
         if (file && file.type.startsWith('image/')) {
             const reader = new FileReader();
@@ -644,7 +638,6 @@ class AIQuestionSolverApp {
             this.currentStream = await navigator.mediaDevices.getUserMedia(constraints);
             this.cameraVideo.srcObject = this.currentStream;
             
-            // Check for flash (torch) capability and show/hide the button
             const track = this.currentStream.getVideoTracks()[0];
             const capabilities = track.getCapabilities();
             this.flashBtn.style.display = capabilities.torch ? 'flex' : 'none';
@@ -879,35 +872,90 @@ class AIQuestionSolverApp {
         return container.outerHTML;
     }
 
+    // UPDATED PDF GENERATION FUNCTION
     async generatePdfFromElement(element, filename) {
         const wrapper = document.createElement('div');
-        wrapper.style.cssText = 'width: 700px; visibility: hidden; position: absolute; left: -9999px;';
-        wrapper.appendChild(element);
+        // Setting a white background is crucial for html2canvas to render non-transparent images
+        wrapper.style.cssText = 'width: 700px; visibility: hidden; position: absolute; left: -9999px; background-color: white;';
+        wrapper.appendChild(element.cloneNode(true));
         document.body.appendChild(wrapper);
+        
         try {
             const { jsPDF } = window.jspdf;
+            const appUrl = window.location.href; // Get the app's URL
+
+            // This function adds a header and a clickable footer to every page of the PDF
+            const addHeaderAndFooter = (pdfInstance) => {
+                const pageCount = pdfInstance.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    pdfInstance.setPage(i); // Go to page i
+                    const pdfWidth = pdfInstance.internal.pageSize.getWidth();
+                    const pdfHeight = pdfInstance.internal.pageSize.getHeight();
+
+                    // --- Add Header ---
+                    pdfInstance.setFontSize(16);
+                    pdfInstance.setFont('helvetica', 'bold');
+                    pdfInstance.text('All Doubt solver', pdfWidth / 2, 15, { align: 'center' });
+
+                    // --- Add Footer Link ---
+                    pdfInstance.setFontSize(10);
+                    pdfInstance.setFont('helvetica', 'normal');
+                    pdfInstance.setTextColor(0, 0, 255); // Set text color to blue for the link
+                    
+                    const footerText = '1 मिनट मे all doubt solver kare क्लिक करे';
+                    // textWithLink is the easiest way to create a clickable link
+                    pdfInstance.textWithLink(footerText, pdfWidth / 2, pdfHeight - 10, {
+                        url: appUrl,
+                        align: 'center'
+                    });
+                    pdfInstance.setTextColor(0, 0, 0); // Reset text color to black for other elements
+                }
+            };
+
             const canvas = await html2canvas(wrapper, { scale: 2, useCORS: true });
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+
+            // Define margins for the content area to avoid overlapping with header/footer
+            const topMargin = 25;
+            const bottomMargin = 20;
+            const contentHeight = pdfHeight - topMargin - bottomMargin;
+            const contentWidth = pdfWidth - 10; // 5mm margin on left and right
+
             const imgProps = pdf.getImageProperties(canvas);
-            const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-            let heightLeft = imgHeight, position = 10;
-            pdf.addImage(canvas, 'PNG', 5, position, pdfWidth - 10, imgHeight);
-            heightLeft -= (pdf.internal.pageSize.getHeight() - 20);
+            const totalImgHeight = (imgProps.height * contentWidth) / imgProps.width;
+
+            let heightLeft = totalImgHeight;
+            let position = 0;
+
+            // Add the first page's content
+            pdf.addImage(canvas, 'PNG', 5, topMargin, contentWidth, totalImgHeight);
+            heightLeft -= contentHeight;
+
+            // Add subsequent pages if the content is too long
             while (heightLeft > 0) {
-                position = -heightLeft - 10;
+                position -= contentHeight;
                 pdf.addPage();
-                pdf.addImage(canvas, 'PNG', 5, position, pdfWidth - 10, imgHeight);
-                heightLeft -= (pdf.internal.pageSize.getHeight() - 20);
+                // The negative 'position' argument shifts the same large canvas image up, showing the next slice
+                pdf.addImage(canvas, 'PNG', 5, position + topMargin, contentWidth, totalImgHeight);
+                heightLeft -= contentHeight;
             }
+
+            // After all pages and content have been added, loop through and apply the header/footer
+            addHeaderAndFooter(pdf);
+
             pdf.save(filename);
-        } catch (error) { console.error("PDF Error:", error); alert("Sorry, failed to create PDF."); }
-        finally { document.body.removeChild(wrapper); }
+        } catch (error) { 
+            console.error("PDF Error:", error); 
+            alert("Sorry, failed to create PDF."); 
+        } finally { 
+            document.body.removeChild(wrapper); 
+        }
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => { new AIQuestionSolverApp(); });
 </script>
-
 </body>
 </html>
