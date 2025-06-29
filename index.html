@@ -21,6 +21,7 @@
             --border-color: #dce1e6;
             --error-color: #d9534f;
             --success-color: #1abc9c;
+            --favorite-color: #e91e63;
             --font-family: 'Poppins', sans-serif;
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
@@ -79,14 +80,15 @@
         .menu-header h2 { font-size: 20px; }
         #close-menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
         .menu-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
-        .menu-item { margin-bottom: 20px; }
+        .menu-item { margin-bottom: 12px; }
         .menu-item label { font-weight: 500; display: block; margin-bottom: 8px; }
-        .menu-item select, .menu-item button { 
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 16px; font-family: var(--font-family); cursor: pointer; background: #f9f9f9; text-align: left;
+        .menu-item select, .menu-item button, .menu-item a.menu-button-link { 
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 15px; font-family: var(--font-family); cursor: pointer; background: #f9f9f9; text-align: left;
+            display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-color);
         }
-        .menu-item button { display: flex; align-items: center; gap: 10px; }
         .menu-item button:hover { background-color: #eef; }
-        #share-app-btn { background-color: var(--primary-color); color: white; border: none; justify-content: center;}
+        .menu-divider { border-bottom: 1px solid var(--border-color); margin: 15px 0; }
+        .cta-button { background-color: var(--success-color) !important; color: white !important; justify-content: center; font-weight: 500;}
 
         main { padding: 30px; }
         
@@ -122,6 +124,7 @@
         .result-actions { display: flex; gap: 12px; }
         .result-actions button { background: none; border: 1px solid var(--border-color); color: #555; width: 38px; height: 38px; border-radius: 50%; font-size: 16px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; }
         .result-actions button:hover { background-color: var(--secondary-color); color: var(--primary-color); }
+        .result-actions button#favoriteBtn.is-favorite { color: var(--favorite-color); }
         .result-actions button.speaking { color: white; background-color: var(--primary-color); }
 
         #resultContent { line-height: 1.7; word-wrap: break-word; }
@@ -171,6 +174,20 @@
         #cropModal .crop-actions { display:flex; justify-content: flex-end; gap: 10px; }
         #cropModal button { padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; font-size: 16px; font-family: var(--font-family); }
         #cropModal #cropBtn { background-color: var(--primary-color); color: white; }
+        
+        /* Settings Modal */
+        .settings-option { margin-bottom: 25px; }
+        .settings-option label { font-weight: 500; display: block; margin-bottom: 10px; }
+        .settings-option select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; }
+        .text-size-options { display: flex; justify-content: space-between; gap: 10px; }
+        .text-size-options input[type="radio"] { display: none; }
+        .text-size-options label {
+            flex: 1; text-align: center; padding: 10px; border: 1px solid var(--border-color);
+            border-radius: 8px; cursor: pointer; transition: all 0.2s ease-in-out;
+        }
+        .text-size-options input[type="radio"]:checked + label {
+            background-color: var(--primary-color); color: white; border-color: var(--primary-color);
+        }
 
         /* Camera Modal Styles */
         #cameraModal {
@@ -222,14 +239,7 @@
     </div>
     <div class="menu-content">
         <div class="menu-item">
-            <label for="language-select-menu">उत्तर की भाषा (Language)</label>
-            <select id="language-select-menu">
-                <option value="en-US">English</option>
-                <option value="hi-IN">हिंदी (Hindi)</option>
-                <option value="bn-IN">Bengali</option>
-                <option value="mr-IN">Marathi</option>
-                <option value="te-IN">Telugu</option>
-            </select>
+            <button id="openSettingsBtn"><i class="fas fa-cog"></i> सेटिंग्स (Settings)</button>
         </div>
         <div class="menu-item">
             <button id="openHistoryBtn"><i class="fas fa-history"></i> उत्तर इतिहास</button>
@@ -237,10 +247,33 @@
         <div class="menu-item">
             <button id="openFavoritesBtn"><i class="fas fa-heart"></i> पसंदीदा उत्तर</button>
         </div>
+       
+        <div class="menu-divider"></div>
+
         <div class="menu-item">
-            <label>ऐप शेयर करें (Share App)</label>
-            <button id="share-app-btn">Share Now</button>
+            <button class="cta-button" onclick="window.open('https://yadavsir.vercel.app/', '_blank')"><i class="fas fa-user-graduate"></i> YADAV Sir AI से Doubt clear करे</button>
         </div>
+        <div class="menu-item">
+             <a href="https://yadav-sir-learn-english-app.vercel.app/#" target="_blank" class="menu-button-link" style="background-color: #007BFF; color: white; justify-content: center; font-weight: 500;">
+                <i class="fas fa-book"></i> इंग्लिश बोलना सीखें 30 दिनों में
+            </a>
+        </div>
+        <div class="menu-item">
+            <button onclick="window.open('https://math-brain-games.vercel.app/', '_blank')"><i class="fas fa-brain"></i> Math BrainGame दिमाग तेज करें!</button>
+        </div>
+
+        <div class="menu-divider"></div>
+        
+        <div class="menu-item" id="downloadAppContainer">
+             <button id="downloadAppBtn"><i class="fas fa-download"></i> ऐप डाउनलोड करें (PWA)</button>
+        </div>
+        <div class="menu-item">
+            <button id="shareAppBtn"><i class="fas fa-share-alt"></i> ऐप साझा करें</button>
+        </div>
+        <div class="menu-item">
+            <button onclick="window.open('https://yadav-sir-ai-math-gk-solver-rule.vercel.app/', '_blank')"><i class="fas fa-shield-alt"></i> गोपनीयता नीति</button>
+        </div>
+
     </div>
 </div>
 
@@ -280,6 +313,27 @@
         <p id="no-favorites" class="no-items hidden">You have no favorite answers yet.</p>
     </div>
 </div>
+
+<!-- Settings Modal -->
+<div class="modal" id="settingsModal">
+    <div class="modal-content">
+        <button class="close-btn" id="closeSettingsBtn"><i class="fas fa-times"></i></button>
+        <h2>⚙️ सेटिंग्स</h2>
+        <div class="settings-option">
+            <label for="languageSelectSettings">उत्तर की भाषा चुनें:</label>
+            <select id="languageSelectSettings"></select>
+        </div>
+        <div class="settings-option">
+            <label>उत्तर टेक्स्ट का आकार:</label>
+            <div class="text-size-options" id="textSizeOptions">
+                <input type="radio" id="textSizeSmall" name="textSize" value="14px"><label for="textSizeSmall">छोटा</label>
+                <input type="radio" id="textSizeMedium" name="textSize" value="16px"><label for="textSizeMedium">मध्यम</label>
+                <input type="radio" id="textSizeLarge" name="textSize" value="18px"><label for="textSizeLarge">बड़ा</label>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- Camera Modal -->
 <div id="cameraModal">
@@ -341,6 +395,7 @@
             <div class="result-header">
                 <h3>Solution:</h3>
                 <div id="result-actions" class="result-actions">
+                    <button id="favoriteBtn" title="Add to favorites"><i class="far fa-heart"></i></button>
                     <button id="shareResultBtn" title="Share result"><i class="fas fa-share-alt"></i></button>
                     <button id="copyResultBtn" title="Copy solution"><i class="fas fa-copy"></i></button>
                     <button id="speakResultBtn" title="Speak solution"><i class="fas fa-volume-up"></i></button>
@@ -362,16 +417,35 @@ class AIQuestionSolverApp {
         this.currentAnswer = { id: null, question: '', image: null, answer: '' };
         this.history = [];
         this.favorites = [];
+        this.settings = { language: 'en-US', textSize: '16px' };
+        this.deferredInstallPrompt = null; // For PWA installation
+
+        this.languages = [
+            { value: 'hi-IN', text: '🇮🇳 हिंदी (Hindi)' },          
+            { value: 'en-US', text: '🇺🇸 English' },
+            { value: 'bn-IN', text: '🇧🇩 बंगाली (Bengali)' },
+            { value: 'mr-IN', text: '🇮🇳 मराठी (Marathi)' },
+            { value: 'te-IN', text: '🇮🇳 तेलुगु (Telugu)' },
+            { value: 'ta-IN', text: '🇮🇳 तमिल (Tamil)' },
+            { value: 'gu-IN', text: '🇮🇳 गुजराती (Gujarati)' },
+            { value: 'kn-IN', text: '🇮🇳 कन्नड़ (Kannada)' },
+            { value: 'ml-IN', text: '🇮🇳 मलयालम (Malayalam)' },
+            { value: 'ur-PK', text: '🇵🇰 उर्दू (Urdu)' },
+            { value: 'es-ES', text: '🇪🇸 स्पेनिश (Spanish)' },
+        ];
 
         // Camera specific state
         this.currentStream = null;
         this.currentFacingMode = 'environment';
         
         this.bindDOMElements();
+        this.populateLanguageSelects();
         this.bindEvents();
         this.checkApiKey();
+        this.loadSettings();
         this.loadHistory();
         this.loadFavorites();
+        this.applySettings();
     }
 
     bindDOMElements() {
@@ -392,6 +466,7 @@ class AIQuestionSolverApp {
         this.clearInputBtn = document.getElementById('clearInputBtn');
 
         // Result Actions
+        this.favoriteBtn = document.getElementById('favoriteBtn');
         this.shareResultBtn = document.getElementById('shareResultBtn');
         this.copyResultBtn = document.getElementById('copyResultBtn');
         this.speakResultBtn = document.getElementById('speakResultBtn');
@@ -402,22 +477,25 @@ class AIQuestionSolverApp {
         this.closeMenuBtn = document.getElementById('close-menu-btn');
         this.sideMenu = document.getElementById('side-menu');
         this.menuOverlay = document.getElementById('menu-overlay');
-        this.shareAppBtn = document.getElementById('share-app-btn');
-        this.languageSelect = document.getElementById('language-select-menu');
+        this.shareAppBtn = document.getElementById('shareAppBtn');
+        this.downloadAppBtn = document.getElementById('downloadAppBtn');
+        this.downloadAppContainer = document.getElementById('downloadAppContainer');
         this.openHistoryBtn = document.getElementById('openHistoryBtn');
         this.openFavoritesBtn = document.getElementById('openFavoritesBtn');
+        this.openSettingsBtn = document.getElementById('openSettingsBtn');
         
         // Modals
         this.modals = {
             crop: document.getElementById('cropModal'),
             history: document.getElementById('historyModal'),
             favorites: document.getElementById('favoritesModal'),
+            settings: document.getElementById('settingsModal'),
         };
         this.imageToCrop = document.getElementById('imageToCrop');
         this.cropBtn = document.getElementById('cropBtn');
         this.cancelCropBtn = document.getElementById('cancelCropBtn');
 
-        // Camera Modal Elements
+        // Camera Modal
         this.cameraModal = document.getElementById('cameraModal');
         this.cameraVideo = document.getElementById('cameraVideo');
         this.closeCameraBtn = document.getElementById('closeCameraBtn');
@@ -425,23 +503,50 @@ class AIQuestionSolverApp {
         this.switchCameraBtn = document.getElementById('switchCameraBtn');
         this.flashBtn = document.getElementById('flashBtn');
 
-        // History & Favorites
+        // History
         this.historyList = document.getElementById('historyList');
         this.noHistoryMsg = document.getElementById('no-history');
         this.closeHistoryBtn = document.getElementById('closeHistoryBtn');
         this.downloadHistoryPdfBtn = document.getElementById('downloadHistoryPdfBtn');
+        
+        // Favorites
         this.favoritesList = document.getElementById('favoritesList');
         this.noFavoritesMsg = document.getElementById('no-favorites');
         this.closeFavoritesBtn = document.getElementById('closeFavoritesBtn');
+
+        // Settings
+        this.closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        this.languageSelectSettings = document.getElementById('languageSelectSettings');
+        this.textSizeOptions = document.getElementById('textSizeOptions');
+
+        // Hide PWA button initially
+        this.downloadAppContainer.style.display = 'none';
+    }
+
+    populateLanguageSelects() {
+        [this.languageSelectSettings].forEach(select => {
+            if (!select) return;
+            select.innerHTML = '';
+            this.languages.forEach(lang => {
+                const option = document.createElement('option');
+                option.value = lang.value;
+                option.textContent = lang.text;
+                select.appendChild(option);
+            });
+        });
     }
 
     bindEvents() {
+        // PWA Install Prompt
+        window.addEventListener('beforeinstallprompt', (e) => this.captureInstallPrompt(e));
+        
         this.solveBtn.addEventListener('click', () => this.solveQuestion());
         this.clearInputBtn.addEventListener('click', () => this.clearAll());
         this.micBtn.addEventListener('click', () => this.handleMicInput());
         this.imageInput.addEventListener('change', (e) => this.handleImageSelection(e.target.files[0]));
         this.cameraBtn.addEventListener('click', () => this.openCamera());
         
+        this.favoriteBtn.addEventListener('click', () => this.handleFavoriteClick());
         this.shareResultBtn.addEventListener('click', () => this.shareResult());
         this.copyResultBtn.addEventListener('click', () => this.copyResult());
         this.speakResultBtn.addEventListener('click', () => this.speakResult());
@@ -456,7 +561,9 @@ class AIQuestionSolverApp {
         
         this.openHistoryBtn.addEventListener('click', () => this.toggleModal('history', true));
         this.openFavoritesBtn.addEventListener('click', () => this.toggleModal('favorites', true));
+        this.openSettingsBtn.addEventListener('click', () => this.toggleModal('settings', true));
         this.shareAppBtn.addEventListener('click', () => this.shareApp());
+        this.downloadAppBtn.addEventListener('click', () => this.promptInstall());
         
         this.cropBtn.addEventListener('click', () => this.finalizeCrop());
         this.cancelCropBtn.addEventListener('click', () => this.toggleModal('crop', false));
@@ -468,9 +575,35 @@ class AIQuestionSolverApp {
 
         if(this.closeHistoryBtn) this.closeHistoryBtn.addEventListener('click', () => this.toggleModal('history', false));
         if(this.closeFavoritesBtn) this.closeFavoritesBtn.addEventListener('click', () => this.toggleModal('favorites', false));
+        if(this.closeSettingsBtn) this.closeSettingsBtn.addEventListener('click', () => this.toggleModal('settings', false));
+
         this.historyList.addEventListener('click', (e) => this.handleListAction(e, 'history'));
         this.favoritesList.addEventListener('click', (e) => this.handleListAction(e, 'favorites'));
         this.downloadHistoryPdfBtn.addEventListener('click', () => this.downloadAllHistoryPdf());
+        
+        // Settings Listeners
+        this.languageSelectSettings.addEventListener('change', (e) => this.handleLanguageChange(e.target.value));
+        this.textSizeOptions.addEventListener('change', (e) => this.handleTextSizeChange(e.target.value));
+    }
+    
+    // --- PWA INSTALLATION METHODS ---
+    captureInstallPrompt(e) {
+        e.preventDefault();
+        this.deferredInstallPrompt = e;
+        // Show the install button now that it's possible
+        this.downloadAppContainer.style.display = 'block';
+    }
+
+    async promptInstall() {
+        if (!this.deferredInstallPrompt) {
+            alert('यह ऐप अभी इंस्टॉल करने योग्य नहीं है, या पहले ही इंस्टॉल हो चुका है।');
+            return;
+        }
+        this.deferredInstallPrompt.prompt();
+        const { outcome } = await this.deferredInstallPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        this.deferredInstallPrompt = null; // Prompt can only be used once
+        this.downloadAppContainer.style.display = 'none'; // Hide the button after use
     }
     
     checkApiKey() {
@@ -491,7 +624,7 @@ class AIQuestionSolverApp {
         this.hideResult();
 
         const subject = this.subjectSelect.value;
-        const languageName = this.languageSelect.options[this.languageSelect.selectedIndex].text;
+        const languageName = this.languages.find(l => l.value === this.settings.language)?.text || 'English';
         const prompt = this.createPrompt(question, subject, languageName);
         
         const model = this.uploadedImage ? 'gemini-pro-vision' : 'gemini-1.5-flash-latest';
@@ -549,6 +682,7 @@ class AIQuestionSolverApp {
     displayResult(content) {
         this.resultContentEl.innerHTML = marked.parse(content);
         this.resultEl.classList.remove('hidden');
+        this.updateFavoriteButtonUI();
     }
 
     hideResult() {
@@ -577,8 +711,8 @@ class AIQuestionSolverApp {
         const modal = this.modals[modalName];
         if (modal) {
             if (show) {
-                if(modalName === 'history') this.renderHistoryList();
-                if(modalName === 'favorites') this.renderFavoritesList();
+                if(modalName === 'history') this.renderList('history');
+                if(modalName === 'favorites') this.renderList('favorites');
                 document.body.classList.add('modal-open');
                 modal.classList.add('show');
                 this.menuOverlay.classList.add('active');
@@ -708,6 +842,33 @@ class AIQuestionSolverApp {
     loadFavorites() { this.favorites = this._getList('aiSolverFavorites_v2'); }
     saveFavorites() { this._saveList('aiSolverFavorites_v2', this.favorites); }
     
+    loadSettings() {
+        const savedSettings = JSON.parse(localStorage.getItem('aiSolverSettings_v2'));
+        if (savedSettings) {
+            this.settings = { ...this.settings, ...savedSettings };
+        }
+    }
+    saveSettings() { localStorage.setItem('aiSolverSettings_v2', JSON.stringify(this.settings)); }
+    
+    applySettings() {
+        this.resultContentEl.style.fontSize = this.settings.textSize;
+        this.languageSelectSettings.value = this.settings.language;
+        const radio = document.querySelector(`#textSizeOptions input[value="${this.settings.textSize}"]`);
+        if (radio) radio.checked = true;
+    }
+
+    handleLanguageChange(value) {
+        this.settings.language = value;
+        this.saveSettings();
+        this.applySettings();
+    }
+
+    handleTextSizeChange(value) {
+        this.settings.textSize = value;
+        this.saveSettings();
+        this.applySettings();
+    }
+
     renderList(type) {
         const list = (type === 'history') ? this.history : this.favorites;
         const listEl = (type === 'history') ? this.historyList : this.favoritesList;
@@ -736,8 +897,6 @@ class AIQuestionSolverApp {
             listEl.appendChild(li);
         });
     }
-    renderHistoryList() { this.renderList('history'); }
-    renderFavoritesList() { this.renderList('favorites'); }
 
     handleListAction(e, type) {
         const target = e.target.closest('[data-action], .action-pdf, .action-delete');
@@ -746,7 +905,7 @@ class AIQuestionSolverApp {
         const id = Number(li.dataset.id);
         const action = target.dataset.action || target.classList[0].replace('action-', '');
         
-        const list = (type === 'history') ? this.history : this.favorites;
+        let list = (type === 'history') ? this.history : this.favorites;
         const item = list.find(h => h.id === id);
         if (!item) return;
 
@@ -769,21 +928,44 @@ class AIQuestionSolverApp {
                 if(type === 'history') {
                     this.history = this.history.filter(h => h.id !== id);
                     this.saveHistory();
-                    this.renderHistoryList();
+                    this.renderList(type);
                 } else {
                     this.favorites = this.favorites.filter(f => f.id !== id);
                     this.saveFavorites();
-                    this.renderFavoritesList();
+                    this.renderList(type);
                 }
             }
         }
     }
     
+    handleFavoriteClick() {
+        if (!this.currentAnswer || !this.currentAnswer.id) {
+            alert("There is no answer to add to favorites.");
+            return;
+        }
+        const index = this.favorites.findIndex(fav => fav.id === this.currentAnswer.id);
+        if (index > -1) {
+            // Remove from favorites
+            this.favorites.splice(index, 1);
+        } else {
+            // Add to favorites
+            this.favorites.unshift(this.currentAnswer);
+        }
+        this.saveFavorites();
+        this.updateFavoriteButtonUI();
+    }
+    
+    updateFavoriteButtonUI() {
+        const isFav = this.currentAnswer && this.currentAnswer.id && this.favorites.some(fav => fav.id === this.currentAnswer.id);
+        this.favoriteBtn.classList.toggle('is-favorite', isFav);
+        this.favoriteBtn.innerHTML = isFav ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>';
+    }
+
     handleMicInput() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) { alert('Speech Recognition not supported on this browser.'); return; }
         const recognition = new SpeechRecognition();
-        recognition.lang = this.languageSelect.value;
+        recognition.lang = this.settings.language;
         recognition.onstart = () => this.micBtn.classList.add('is-listening');
         recognition.onend = () => this.micBtn.classList.remove('is-listening');
         recognition.onresult = (e) => {
@@ -804,7 +986,7 @@ class AIQuestionSolverApp {
         if (!this.currentAnswer.answer) { alert('Nothing to speak.'); return; }
         
         const utterance = new SpeechSynthesisUtterance(this.resultContentEl.innerText);
-        utterance.lang = this.languageSelect.value;
+        utterance.lang = this.settings.language;
         utterance.onstart = () => { this.isSpeaking = true; this.speakResultBtn.classList.add('speaking'); this.speakResultBtn.innerHTML = '<i class="fas fa-stop-circle"></i>'; };
         utterance.onend = () => { this.isSpeaking = false; this.speakResultBtn.classList.remove('speaking'); this.speakResultBtn.innerHTML = '<i class="fas fa-volume-up"></i>'; };
         utterance.onerror = (e) => { console.error('TTS error:', e); utterance.onend(); };
@@ -854,7 +1036,6 @@ class AIQuestionSolverApp {
     
     createPdfItemHtml(item, title) {
         const container = document.createElement('div');
-        // This CSS ensures each item starts on a new page in the combined PDF
         container.style.cssText = 'padding: 20px; font-family: sans-serif; page-break-after: always;';
         const questionText = item.question ? `<p><strong>Question:</strong> ${item.question}</p>` : '<p><strong>Question:</strong><em> (No text question, see image)</em></p>';
         const imageHtml = item.image ? `<img src="data:${item.image.mimeType};base64,${item.image.data}" style="max-width:100%; border:1px solid #eee; margin-top:10px; margin-bottom:10px;">` : '';
@@ -871,17 +1052,9 @@ class AIQuestionSolverApp {
         return container.outerHTML;
     }
 
-    // --- CORRECTED PDF GENERATION FUNCTION ---
     async generatePdfFromElement(element, filename) {
-        // Create a temporary wrapper element to render the content off-screen.
         const wrapper = document.createElement('div');
-        
-        // --- CRITICAL FIX ---
-        // REMOVED `visibility: hidden`. The element must be rendered by the browser.
-        // Positioning it far off-screen is enough to hide it from the user.
         wrapper.style.cssText = 'width: 700px; position: absolute; left: -9999px; top: 0; background-color: white; padding: 10px;';
-        
-        // Clone the original content into the wrapper to avoid modifying the live page.
         wrapper.appendChild(element.cloneNode(true));
         document.body.appendChild(wrapper);
         
@@ -913,7 +1086,7 @@ class AIQuestionSolverApp {
             const pdfHeight = pdf.internal.pageSize.getHeight();
             const topMargin = 25;
             const bottomMargin = 20;
-            const contentWidth = pdfWidth - 20; // 10mm margin left/right
+            const contentWidth = pdfWidth - 20;
             const contentHeight = pdfHeight - topMargin - bottomMargin;
             const imgProps = pdf.getImageProperties(canvas);
             const totalImgHeight = (imgProps.height * contentWidth) / imgProps.width;
