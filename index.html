@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>AI Question Solver</title>
+    <title>All Doubt Solver</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -15,27 +15,32 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <style>
         :root {
-            --primary-color: #4a90e2;
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color-start: #667eea;
+            --primary-color-end: #764ba2;
             --secondary-color: #f5f7fa;
+            --background-gradient: linear-gradient(to bottom, #f5f7fa, #eef2f7);
             --text-color: #333;
             --border-color: #dce1e6;
-            --error-color: #d9534f;
-            --success-color: #1abc9c;
-            --favorite-color: #e91e63;
+            --error-color: #ff6b6b;
+            --success-color: #1dd1a1;
+            --favorite-color: #ff4757;
             --font-family: 'Poppins', sans-serif;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: var(--font-family);
-            background-color: var(--secondary-color);
+            background: var(--background-gradient);
             color: var(--text-color);
             display: flex;
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
             padding: 20px;
+            transition: background-color 0.3s;
         }
         
         body.menu-active, body.modal-open { overflow: hidden; }
@@ -44,20 +49,21 @@
             width: 100%;
             max-width: 800px;
             background-color: #fff;
-            border-radius: 12px;
+            border-radius: 16px;
             box-shadow: var(--shadow);
             overflow: hidden;
+            border: 1px solid #fff;
         }
 
         header {
-            background-color: var(--primary-color);
+            background: var(--primary-gradient);
             color: white;
-            padding: 20px;
+            padding: 11px 15px;
             text-align: center;
             position: relative;
         }
 
-        header h1 { margin: 0; font-weight: 600; }
+        header h1 { margin: 0; font-weight: 700; letter-spacing: 1px; }
 
         #menu-toggle-btn {
             position: absolute;
@@ -69,96 +75,88 @@
             color: white;
             font-size: 28px;
             cursor: pointer;
+            transition: transform 0.2s;
         }
+        #menu-toggle-btn:hover { transform: translateY(-50%) scale(1.1); }
 
         /* Side Menu Styles */
         #side-menu { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background-color: #fff; box-shadow: 2px 0 10px rgba(0,0,0,0.1); transform: translateX(-100%); transition: transform 0.3s ease-in-out; z-index: 2000; display: flex; flex-direction: column; }
         #side-menu.open { transform: translateX(0); }
         #menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; }
         #menu-overlay.active { opacity: 1; pointer-events: auto; }
-        .menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding: 20px; }
-        .menu-header h2 { font-size: 20px; }
-        #close-menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
+        .menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding: 20px; background: var(--primary-gradient); color: white; }
+        .menu-header h2 { font-size: 20px; font-weight: 600; }
+        #close-menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: white; opacity: 0.8; }
         .menu-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
         .menu-item { margin-bottom: 12px; }
         .menu-item label { font-weight: 500; display: block; margin-bottom: 8px; }
         .menu-item select, .menu-item button, .menu-item a.menu-button-link { 
             width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 15px; font-family: var(--font-family); cursor: pointer; background: #f9f9f9; text-align: left;
-            display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-color);
+            display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-color); transition: all 0.2s;
         }
-        .menu-item button:hover { background-color: #eef; }
-        .menu-divider { border-bottom: 1px solid var(--border-color); margin: 15px 0; }
-        .cta-button { background-color: var(--success-color) !important; color: white !important; justify-content: center; font-weight: 500;}
+        .menu-item button:hover, .menu-item a.menu-button-link:hover { background-color: #eef2f7; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .menu-divider { border-bottom: 1px solid var(--border-color); margin: 20px 0; }
+        .cta-button { background: var(--success-color) !important; color: white !important; justify-content: center; font-weight: 500; border: none !important;}
 
         main { padding: 30px; }
         
         .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
-        #questionInput, #subjectSelect { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: var(--font-family); font-size: 16px; transition: border-color 0.3s; }
-        #questionInput:focus, #subjectSelect:focus { outline: none; border-color: var(--primary-color); }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 8px; color: #555; }
+        #questionInput, #subjectSelect { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: var(--font-family); font-size: 16px; transition: all 0.3s; }
+        #questionInput:focus, #subjectSelect:focus { outline: none; border-color: var(--primary-color-start); box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25); }
         #questionInput { resize: vertical; min-height: 120px; }
         
         .input-options { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 20px; }
         .action-buttons { display: flex; gap: 10px; }
         .action-buttons button, .file-input-wrapper {
-            width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border-color); background-color: #fff; color: #555; font-size: 18px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: background-color 0.2s, color 0.2s;
+            width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border-color); background-color: #fff; color: #555; font-size: 18px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s ease-in-out;
         }
-        .action-buttons button:hover, .file-input-wrapper:hover { background-color: var(--secondary-color); color: var(--primary-color); }
+        .action-buttons button:hover, .file-input-wrapper:hover { background-color: var(--secondary-color); color: var(--primary-color-start); transform: translateY(-2px); }
         #micBtn.is-listening { background-color: var(--error-color); color: white; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(217,83,79,.7)} 70%{box-shadow:0 0 0 10px rgba(217,83,79,0)} 100%{box-shadow:0 0 0 0 rgba(217,83,79,0)} }
+        @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(255,107,107,.7)} 70%{box-shadow:0 0 0 10px rgba(255,107,107,0)} 100%{box-shadow:0 0 0 0 rgba(255,107,107,0)} }
         
         .file-input-wrapper { position: relative; overflow: hidden; }
         .file-input-wrapper input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-        #imagePreview { display: none; max-width: 100%; max-height: 250px; margin: 15px auto; border-radius: 8px; border: 1px solid var(--border-color); }
+        #imagePreview { display: none; max-width: 100%; max-height: 250px; margin: 15px auto; border-radius: 12px; border: 2px dashed var(--border-color); padding: 5px; }
 
-        #solveBtn { width: 100%; padding: 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; transition: background-color 0.3s; }
-        #solveBtn:disabled { background-color: #a0c3e8; cursor: not-allowed; }
-        #solveBtn:not(:disabled):hover { background-color: #3a7bc8; }
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        #solveBtn { 
+            width: 100%; padding: 15px; background: var(--primary-gradient); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+        #solveBtn:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; transform: none; box-shadow: none; }
+        #solveBtn:not(:disabled):hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(118, 75, 162, 0.3); }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color-start); border-left: 5px solid var(--primary-color-end); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .error-box { background-color: #f2dede; color: var(--error-color); border: 1px solid #ebccd1; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
+        .error-box { background-color: #ffeded; color: var(--error-color); border: 1px solid #ffdddd; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
         
-        #result { margin-top: 30px; padding: 25px; background-color: #f9f9f9; border-radius: 8px; border: 1px solid var(--border-color); }
-        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; }
-        .result-header h3 { margin: 0; }
+        #result { margin-top: 30px; padding: 25px; background-color: #fff; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-light); }
+        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .result-header h3 { margin: 0; color: var(--primary-color-end); font-weight: 600; }
         .result-actions { display: flex; gap: 12px; }
         .result-actions button { background: none; border: 1px solid var(--border-color); color: #555; width: 38px; height: 38px; border-radius: 50%; font-size: 16px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; }
-        .result-actions button:hover { background-color: var(--secondary-color); color: var(--primary-color); }
-        .result-actions button#favoriteBtn.is-favorite { color: var(--favorite-color); }
-        .result-actions button.speaking { color: white; background-color: var(--primary-color); }
+        .result-actions button:hover { background-color: var(--secondary-color); color: var(--primary-color-end); transform: translateY(-2px); }
+        .result-actions button#favoriteBtn.is-favorite { color: var(--favorite-color); border-color: var(--favorite-color); }
+        .result-actions button.speaking { color: white; background-color: var(--primary-color-end); }
 
         #resultContent { line-height: 1.7; word-wrap: break-word; }
         #resultContent * { max-width: 100%; }
-        #resultContent code { background-color: #eef; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
-        #resultContent pre { background-color: #2d2d2d; color: #f1f1f1; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        #resultContent code { background-color: #eef2f7; padding: 3px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; color: #c42066; }
+        #resultContent pre { background-color: #2d2d2d; color: #f1f1f1; padding: 15px; border-radius: 8px; overflow-x: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .hidden { display: none !important; }
 
         /* Modal Styles */
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6); display: flex;
-            justify-content: center; align-items: center; z-index: 3000;
-            opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
-        }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 3000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
         .modal.show { opacity: 1; visibility: visible; }
-        .modal .modal-content {
-            background-color: white; padding: 20px; border-radius: 12px;
-            width: 95%; max-width: 700px; max-height: 90vh;
-            display: flex; flex-direction: column; box-shadow: 0 5px 25px rgba(0,0,0,0.2);
-            position: relative; transform: scale(0.9); transition: transform 0.3s;
-        }
+        .modal .modal-content { background-color: white; padding: 20px; border-radius: 12px; width: 95%; max-width: 700px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 5px 25px rgba(0,0,0,0.2); position: relative; transform: scale(0.9); transition: transform 0.3s; }
         .modal.show .modal-content { transform: scale(1); }
-        .modal .close-btn {
-            position: absolute; top: 10px; right: 10px; background: #f1f1f1;
-            border: none; color: #555; width: 35px; height: 35px;
-            border-radius: 50%; font-size: 18px; cursor: pointer;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .modal h2 { margin-bottom: 20px; text-align: center; color: var(--primary-color); }
+        .modal .close-btn { position: absolute; top: 10px; right: 10px; background: #f1f1f1; border: none; color: #555; width: 35px; height: 35px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s; }
+        .modal .close-btn:hover { background: #e0e0e0; transform: rotate(90deg); }
+        .modal h2 { margin-bottom: 20px; text-align: center; color: var(--primary-color-end); }
         
         /* History & Favorites Modal Styles */
         .list-modal ul { list-style: none; padding: 0; max-height: 65vh; overflow-y: auto; }
-        .list-item { background-color: #f9f9f9; border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        .list-item { background-color: #f9f9f9; border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 15px; transition: all 0.2s; }
+        .list-item:hover { transform: translateX(5px); box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
         .list-item-content { flex-grow: 1; display: flex; align-items: center; gap: 15px; overflow: hidden; cursor: pointer; }
         .list-item-img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
         .list-item-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -173,7 +171,7 @@
         #imageToCrop { display: block; max-width: 100%; height: 100%; }
         #cropModal .crop-actions { display:flex; justify-content: flex-end; gap: 10px; }
         #cropModal button { padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; font-size: 16px; font-family: var(--font-family); }
-        #cropModal #cropBtn { background-color: var(--primary-color); color: white; }
+        #cropModal #cropBtn { background: var(--primary-gradient); color: white; border: none; }
         
         /* Settings Modal */
         .settings-option { margin-bottom: 25px; }
@@ -181,49 +179,16 @@
         .settings-option select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; }
         .text-size-options { display: flex; justify-content: space-between; gap: 10px; }
         .text-size-options input[type="radio"] { display: none; }
-        .text-size-options label {
-            flex: 1; text-align: center; padding: 10px; border: 1px solid var(--border-color);
-            border-radius: 8px; cursor: pointer; transition: all 0.2s ease-in-out;
-        }
-        .text-size-options input[type="radio"]:checked + label {
-            background-color: var(--primary-color); color: white; border-color: var(--primary-color);
-        }
+        .text-size-options label { flex: 1; text-align: center; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s ease-in-out; }
+        .text-size-options input[type="radio"]:checked + label { background: var(--primary-gradient); color: white; border-color: var(--primary-color-start); }
 
         /* Camera Modal Styles */
-        #cameraModal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #000;
-            z-index: 4000;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+        #cameraModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; z-index: 4000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         #cameraVideo { width: 100%; height: 100%; object-fit: cover; }
-        #closeCameraBtn {
-            position: absolute; top: 20px; right: 20px; z-index: 4002;
-            width: 44px; height: 44px; border-radius: 50%; font-size: 20px;
-            background-color: rgba(255,255,255,0.2); color: white; border: none;
-        }
-        .camera-controls {
-            position: absolute; bottom: 30px; left: 50%;
-            transform: translateX(-50%);
-            display: flex; align-items: center; gap: 30px;
-            z-index: 4001;
-        }
-        .camera-controls button {
-            width: 60px; height: 60px; border-radius: 50%;
-            font-size: 24px; color: white;
-            background-color: rgba(255,255,255,0.2);
-            border: 2px solid white;
-            cursor: pointer;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .camera-controls #captureBtn {
-            width: 70px; height: 70px;
-            background-color: var(--primary-color);
-        }
+        #closeCameraBtn { position: absolute; top: 20px; right: 20px; z-index: 4002; width: 44px; height: 44px; border-radius: 50%; font-size: 20px; background-color: rgba(255,255,255,0.2); color: white; border: none; }
+        .camera-controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 30px; z-index: 4001; }
+        .camera-controls button { width: 60px; height: 60px; border-radius: 50%; font-size: 24px; color: white; background-color: rgba(255,255,255,0.2); border: 2px solid white; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .camera-controls #captureBtn { width: 70px; height: 70px; background: var(--primary-color-start); }
 
         @media (max-width: 600px) { body { padding: 0; } .container { border-radius: 0; } main { padding: 20px; } }
     </style>
@@ -239,13 +204,13 @@
     </div>
     <div class="menu-content">
         <div class="menu-item">
-            <button id="openSettingsBtn"><i class="fas fa-cog"></i> सेटिंग्स (Settings)</button>
+            <button id="openSettingsBtn"><i class="fas fa-cog"></i> भाषा सेटिंग्स (Settings)</button>
         </div>
         <div class="menu-item">
-            <button id="openHistoryBtn"><i class="fas fa-history"></i> उत्तर इतिहास</button>
+            <button id="openHistoryBtn"><i class="fas fa-history"></i> उत्तर इतिहास PDF Download</button>
         </div>
         <div class="menu-item">
-            <button id="openFavoritesBtn"><i class="fas fa-heart"></i> पसंदीदा उत्तर</button>
+            <button id="openFavoritesBtn"><i class="fas fa-heart" style="color: var(--favorite-color);"></i> पसंदीदा उत्तर PDF</button>
         </div>
        
         <div class="menu-divider"></div>
@@ -254,7 +219,7 @@
             <button class="cta-button" onclick="window.open('https://yadavsir.vercel.app/', '_blank')"><i class="fas fa-user-graduate"></i> YADAV Sir AI से Doubt clear करे</button>
         </div>
         <div class="menu-item">
-             <a href="https://yadav-sir-learn-english-app.vercel.app/#" target="_blank" class="menu-button-link" style="background-color: #007BFF; color: white; justify-content: center; font-weight: 500;">
+             <a href="https://yadav-sir-learn-english-app.vercel.app/#" target="_blank" class="menu-button-link" style="background: var(--primary-color-start); color: white; justify-content: center; font-weight: 500;">
                 <i class="fas fa-book"></i> इंग्लिश बोलना सीखें 30 दिनों में
             </a>
         </div>
@@ -273,8 +238,13 @@
         <div class="menu-item">
             <button onclick="window.open('https://yadav-sir-ai-math-gk-solver-rule.vercel.app/', '_blank')"><i class="fas fa-shield-alt"></i> गोपनीयता नीति</button>
         </div>
+   
 
-    </div>
+<script async="async" data-cfasync="false" src="//pl26909564.profitableratecpm.com/6ebb90926991ce60974cf8782c909bec/invoke.js"></script>
+<div id="container-6ebb90926991ce60974cf8782c909bec"></div>
+
+
+      </div>
 </div>
 
 <!-- Cropper Modal -->
@@ -349,7 +319,7 @@
 <div class="container">
     <header>
         <button id="menu-toggle-btn">☰</button>
-        <h1>AI Question Solver</h1>
+        <h1>All Doubt Solver</h1>
     </header>
     <main>
         <!-- API Key is stored here. Replace with your actual key. -->
@@ -395,19 +365,33 @@
             <div class="result-header">
                 <h3>Solution:</h3>
                 <div id="result-actions" class="result-actions">
+                    <button id="downloadPdfBtn" title="Download as PDF"><i class="fas fa-file-pdf"></i></button>       
                     <button id="favoriteBtn" title="Add to favorites"><i class="far fa-heart"></i></button>
                     <button id="shareResultBtn" title="Share result"><i class="fas fa-share-alt"></i></button>
-                    <button id="copyResultBtn" title="Copy solution"><i class="fas fa-copy"></i></button>
                     <button id="speakResultBtn" title="Speak solution"><i class="fas fa-volume-up"></i></button>
-                    <button id="downloadPdfBtn" title="Download as PDF"><i class="fas fa-file-pdf"></i></button>
-                </div>
+                 </div>
             </div>
             <div id="resultContent"></div>
+
+
+<script type="text/javascript">
+	atOptions = {
+		'key' : 'dfb9f45a0bfc2772a4f0f47ce1391707',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/dfb9f45a0bfc2772a4f0f47ce1391707/invoke.js"></script>
+
+
+
         </div>
     </main>
 </div>
 <script>
-class AIQuestionSolverApp {
+class AllDoubtSolverApp {
     constructor() {
         this.apiKey = document.getElementById('api-key').textContent.trim();
         this.uploadedImage = null;
@@ -468,7 +452,8 @@ class AIQuestionSolverApp {
         // Result Actions
         this.favoriteBtn = document.getElementById('favoriteBtn');
         this.shareResultBtn = document.getElementById('shareResultBtn');
-        this.copyResultBtn = document.getElementById('copyResultBtn');
+        // Note: The original had a copyResultBtn element but it wasn't in the HTML, so I'm omitting it.
+        // this.copyResultBtn = document.getElementById('copyResultBtn'); 
         this.speakResultBtn = document.getElementById('speakResultBtn');
         this.downloadPdfBtn = document.getElementById('downloadPdfBtn');
         
@@ -548,7 +533,6 @@ class AIQuestionSolverApp {
         
         this.favoriteBtn.addEventListener('click', () => this.handleFavoriteClick());
         this.shareResultBtn.addEventListener('click', () => this.shareResult());
-        this.copyResultBtn.addEventListener('click', () => this.copyResult());
         this.speakResultBtn.addEventListener('click', () => this.speakResult());
         this.downloadPdfBtn.addEventListener('click', () => this.downloadPdf());
 
@@ -590,7 +574,6 @@ class AIQuestionSolverApp {
     captureInstallPrompt(e) {
         e.preventDefault();
         this.deferredInstallPrompt = e;
-        // Show the install button now that it's possible
         this.downloadAppContainer.style.display = 'block';
     }
 
@@ -602,8 +585,8 @@ class AIQuestionSolverApp {
         this.deferredInstallPrompt.prompt();
         const { outcome } = await this.deferredInstallPrompt.userChoice;
         console.log(`User response to the install prompt: ${outcome}`);
-        this.deferredInstallPrompt = null; // Prompt can only be used once
-        this.downloadAppContainer.style.display = 'none'; // Hide the button after use
+        this.deferredInstallPrompt = null;
+        this.downloadAppContainer.style.display = 'none';
     }
     
     checkApiKey() {
@@ -835,20 +818,20 @@ class AIQuestionSolverApp {
     _getList(type) { return JSON.parse(localStorage.getItem(type)) || []; }
     _saveList(type, data) { localStorage.setItem(type, JSON.stringify(data)); }
     
-    loadHistory() { this.history = this._getList('aiSolverHistory_v2'); }
-    saveHistory() { this._saveList('aiSolverHistory_v2', this.history); }
+    loadHistory() { this.history = this._getList('allDoubtSolverHistory_v3'); }
+    saveHistory() { this._saveList('allDoubtSolverHistory_v3', this.history); }
     addToHistory(item) { this.history.unshift(item); if (this.history.length > 50) this.history.pop(); this.saveHistory(); }
     
-    loadFavorites() { this.favorites = this._getList('aiSolverFavorites_v2'); }
-    saveFavorites() { this._saveList('aiSolverFavorites_v2', this.favorites); }
+    loadFavorites() { this.favorites = this._getList('allDoubtSolverFavorites_v3'); }
+    saveFavorites() { this._saveList('allDoubtSolverFavorites_v3', this.favorites); }
     
     loadSettings() {
-        const savedSettings = JSON.parse(localStorage.getItem('aiSolverSettings_v2'));
+        const savedSettings = JSON.parse(localStorage.getItem('allDoubtSolverSettings_v3'));
         if (savedSettings) {
             this.settings = { ...this.settings, ...savedSettings };
         }
     }
-    saveSettings() { localStorage.setItem('aiSolverSettings_v2', JSON.stringify(this.settings)); }
+    saveSettings() { localStorage.setItem('allDoubtSolverSettings_v3', JSON.stringify(this.settings)); }
     
     applySettings() {
         this.resultContentEl.style.fontSize = this.settings.textSize;
@@ -945,10 +928,8 @@ class AIQuestionSolverApp {
         }
         const index = this.favorites.findIndex(fav => fav.id === this.currentAnswer.id);
         if (index > -1) {
-            // Remove from favorites
             this.favorites.splice(index, 1);
         } else {
-            // Add to favorites
             this.favorites.unshift(this.currentAnswer);
         }
         this.saveFavorites();
@@ -975,11 +956,6 @@ class AIQuestionSolverApp {
         recognition.start();
     }
 
-    copyResult() {
-        if (!this.currentAnswer.answer) { alert('Nothing to copy.'); return; }
-        navigator.clipboard.writeText(this.resultContentEl.innerText).then(() => alert('Solution copied!')).catch(err => alert('Failed to copy.'));
-    }
-
     speakResult() {
         if (!this.synth) { alert('Text-to-speech not supported on this browser.'); return; }
         if (this.isSpeaking) { this.synth.cancel(); return; }
@@ -997,7 +973,7 @@ class AIQuestionSolverApp {
         if (!navigator.share) { alert('Share feature is not supported on this browser.'); return; }
         const text = `Question: ${this.currentAnswer.question}\n\nAnswer:\n${this.resultContentEl.innerText}`;
         try {
-            await navigator.share({ title: 'AI Solution', text, url: window.location.href });
+            await navigator.share({ title: 'Solution from All Doubt Solver', text, url: window.location.href });
         } catch (err) {
             console.error('Share error:', err);
         }
@@ -1006,7 +982,7 @@ class AIQuestionSolverApp {
     async shareApp() {
         if (!navigator.share) { alert('Share feature is not supported on this browser.'); return; }
         try {
-            await navigator.share({ title: 'AI Question Solver', text: 'Check out this awesome AI Question Solver app!', url: window.location.href });
+            await navigator.share({ title: 'All Doubt Solver', text: 'Check out this awesome All Doubt Solver app!', url: window.location.href });
         } catch(err) {
             console.error('Share error:', err);
         }
@@ -1014,7 +990,7 @@ class AIQuestionSolverApp {
     
     async downloadPdf() {
         if (!this.currentAnswer.answer) { alert('No result to download.'); return; }
-        await this.downloadItemAsPdf(this.currentAnswer, 'AI_Solution.pdf');
+        await this.downloadItemAsPdf(this.currentAnswer, 'Doubt_Solution.pdf');
     }
     
     async downloadAllHistoryPdf() {
@@ -1024,7 +1000,7 @@ class AIQuestionSolverApp {
         this.history.forEach((item, i) => {
             combinedContent.innerHTML += this.createPdfItemHtml(item, `History Item #${i + 1}`);
         });
-        await this.generatePdfFromElement(combinedContent, 'AI_Solver_All_History.pdf');
+        await this.generatePdfFromElement(combinedContent, 'All_Doubt_Solver_History.pdf');
     }
 
     async downloadItemAsPdf(item, filename) {
@@ -1117,7 +1093,7 @@ class AIQuestionSolverApp {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => { new AIQuestionSolverApp(); });
+document.addEventListener('DOMContentLoaded', () => { new AllDoubtSolverApp(); });
 </script>
 </body>
 </html>
