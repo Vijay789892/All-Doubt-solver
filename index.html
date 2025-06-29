@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AI Question Solver</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5f7fa;
+            --text-color: #333;
+            --border-color: #dce1e6;
+            --error-color: #d9534f;
+            --success-color: #1abc9c;
+            --font-family: 'Poppins', sans-serif;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        body.menu-active, body.modal-open { overflow: hidden; }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        header h1 { margin: 0; font-weight: 600; }
+
+        #menu-toggle-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        /* Side Menu Styles */
+        #side-menu { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background-color: #fff; box-shadow: 2px 0 10px rgba(0,0,0,0.1); transform: translateX(-100%); transition: transform 0.3s ease-in-out; z-index: 2000; display: flex; flex-direction: column; }
+        #side-menu.open { transform: translateX(0); }
+        #menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; }
+        #menu-overlay.active { opacity: 1; pointer-events: auto; }
+        .menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding: 20px; }
+        .menu-header h2 { font-size: 20px; }
+        #close-menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
+        .menu-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
+        .menu-item { margin-bottom: 20px; }
+        .menu-item label { font-weight: 500; display: block; margin-bottom: 8px; }
+        .menu-item select, .menu-item button { 
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 16px; font-family: var(--font-family); cursor: pointer; background: #f9f9f9; text-align: left;
+        }
+        .menu-item button { display: flex; align-items: center; gap: 10px; }
+        .menu-item button:hover { background-color: #eef; }
+        #share-app-btn { background-color: var(--primary-color); color: white; border: none; justify-content: center;}
+
+        main { padding: 30px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
+        #questionInput, #subjectSelect { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: var(--font-family); font-size: 16px; transition: border-color 0.3s; }
+        #questionInput:focus, #subjectSelect:focus { outline: none; border-color: var(--primary-color); }
+        #questionInput { resize: vertical; min-height: 120px; }
+        
+        .input-options { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 20px; }
+        .action-buttons { display: flex; gap: 10px; }
+        .action-buttons button, .file-input-wrapper {
+            width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border-color); background-color: #fff; color: #555; font-size: 18px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: background-color 0.2s, color 0.2s;
+        }
+        .action-buttons button:hover, .file-input-wrapper:hover { background-color: var(--secondary-color); color: var(--primary-color); }
+        #micBtn.is-listening { background-color: var(--error-color); color: white; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(217,83,79,.7)} 70%{box-shadow:0 0 0 10px rgba(217,83,79,0)} 100%{box-shadow:0 0 0 0 rgba(217,83,79,0)} }
+        
+        .file-input-wrapper { position: relative; overflow: hidden; }
+        .file-input-wrapper input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        #imagePreview { display: none; max-width: 100%; max-height: 250px; margin: 15px auto; border-radius: 8px; border: 1px solid var(--border-color); }
+
+        #solveBtn { width: 100%; padding: 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; transition: background-color 0.3s; }
+        #solveBtn:disabled { background-color: #a0c3e8; cursor: not-allowed; }
+        #solveBtn:not(:disabled):hover { background-color: #3a7bc8; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .error-box { background-color: #f2dede; color: var(--error-color); border: 1px solid #ebccd1; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
+        
+        #result { margin-top: 30px; padding: 25px; background-color: #f9f9f9; border-radius: 8px; border: 1px solid var(--border-color); }
+        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; }
+        .result-header h3 { margin: 0; }
+        .result-actions { display: flex; gap: 12px; }
+        .result-actions button { background: none; border: 1px solid var(--border-color); color: #555; width: 38px; height: 38px; border-radius: 50%; font-size: 16px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; }
+        .result-actions button:hover { background-color: var(--secondary-color); color: var(--primary-color); }
+        .result-actions button.speaking { color: white; background-color: var(--primary-color); }
+
+        #resultContent { line-height: 1.7; word-wrap: break-word; }
+        #resultContent * { max-width: 100%; }
+        #resultContent code { background-color: #eef; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+        #resultContent pre { background-color: #2d2d2d; color: #f1f1f1; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        .hidden { display: none !important; }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); display: flex;
+            justify-content: center; align-items: center; z-index: 3000;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal.show { opacity: 1; visibility: visible; }
+        .modal .modal-content {
+            background-color: white; padding: 20px; border-radius: 12px;
+            width: 95%; max-width: 700px; max-height: 90vh;
+            display: flex; flex-direction: column; box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            position: relative; transform: scale(0.9); transition: transform 0.3s;
+        }
+        .modal.show .modal-content { transform: scale(1); }
+        .modal .close-btn {
+            position: absolute; top: 10px; right: 10px; background: #f1f1f1;
+            border: none; color: #555; width: 35px; height: 35px;
+            border-radius: 50%; font-size: 18px; cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .modal h2 { margin-bottom: 20px; text-align: center; color: var(--primary-color); }
+        
+        /* History & Favorites Modal Styles */
+        .list-modal ul { list-style: none; padding: 0; max-height: 65vh; overflow-y: auto; }
+        .list-item { background-color: #f9f9f9; border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        .list-item-content { flex-grow: 1; display: flex; align-items: center; gap: 15px; overflow: hidden; cursor: pointer; }
+        .list-item-img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+        .list-item-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .list-item-actions { display: flex; gap: 8px; }
+        .list-item-actions button { width: 38px; height: 38px; border-radius: 50%; padding: 0; font-size: 14px; flex-shrink: 0; border: 1px solid var(--border-color); background: white; cursor: pointer; }
+        .no-items { text-align: center; padding: 40px 20px; color: #888; }
+        #historyModal #downloadHistoryPdfBtn { width: 100%; padding: 12px; margin-bottom: 15px; background: var(--success-color); color: white; border: none; border-radius: 8px; cursor: pointer; }
+        
+        /* Cropper Modal */
+        #cropModal .modal-content { max-width: 90vw; max-height: 90vh; }
+        #cropperContainer { height: 60vh; margin-bottom: 20px; background: #eee; }
+        #imageToCrop { display: block; max-width: 100%; height: 100%; }
+        #cropModal .crop-actions { display:flex; justify-content: flex-end; gap: 10px; }
+        #cropModal button { padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; font-size: 16px; font-family: var(--font-family); }
+        #cropModal #cropBtn { background-color: var(--primary-color); color: white; }
+
+        /* NEW: Camera Modal Styles */
+        #cameraModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000;
+            z-index: 4000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #cameraVideo { width: 100%; height: 100%; object-fit: cover; }
+        #closeCameraBtn {
+            position: absolute; top: 20px; right: 20px; z-index: 4002;
+            width: 44px; height: 44px; border-radius: 50%; font-size: 20px;
+            background-color: rgba(255,255,255,0.2); color: white; border: none;
+        }
+        .camera-controls {
+            position: absolute; bottom: 30px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; align-items: center; gap: 30px;
+            z-index: 4001;
+        }
+        .camera-controls button {
+            width: 60px; height: 60px; border-radius: 50%;
+            font-size: 24px; color: white;
+            background-color: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .camera-controls #captureBtn {
+            width: 70px; height: 70px;
+            background-color: var(--primary-color);
+        }
+
+        @media (max-width: 600px) { body { padding: 0; } .container { border-radius: 0; } main { padding: 20px; } }
+    </style>
+</head>
+<body>
+    
+    <div id="menu-overlay"></div>
+
+    <!-- Side Menu - Contains all navigation -->
+    <div id="side-menu">
+        <div class="menu-header">
+            <h2>Menu</h2>
+            <button id="close-menu-btn">×</button>
+        </div>
+        <div class="menu-content">
+            <div class="menu-item">
+                <label for="language-select-menu">उत्तर की भाषा (Language)</label>
+                <select id="language-select-menu">
+                    <option value="en-US">English</option>
+                    <option value="hi-IN">हिंदी (Hindi)</option>
+                    <option value="bn-IN">Bengali</option>
+                    <option value="mr-IN">Marathi</option>
+                    <option value="te-IN">Telugu</option>
+                </select>
+            </div>
+            <div class="menu-item">
+                <button id="openHistoryBtn"><i class="fas fa-history"></i> उत्तर इतिहास</button>
+            </div>
+            <div class="menu-item">
+                <button id="openFavoritesBtn"><i class="fas fa-heart"></i> पसंदीदा उत्तर</button>
+            </div>
+            <div class="menu-item">
+                <label>ऐप शेयर करें (Share App)</label>
+                <button id="share-app-btn">Share Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cropper Modal -->
+    <div id="cropModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px; text-align: center;">Crop Image</h3>
+            <div id="cropperContainer">
+                <img id="imageToCrop" src="">
+            </div>
+            <div class="crop-actions">
+                <button id="cancelCropBtn">Cancel</button>
+                <button id="cropBtn">Crop & Use Image</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- History Modal -->
+    <div class="modal list-modal" id="historyModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeHistoryBtn"><i class="fas fa-times"></i></button>
+            <h2>📚 उत्तर इतिहास</h2>
+            <button id="downloadHistoryPdfBtn" title="पूरा इतिहास PDF के रूप में डाउनलोड करें">
+                <i class="fas fa-file-pdf"></i> सभी इतिहास PDF डाउनलोड करें
+            </button>
+            <ul id="historyList"></ul>
+            <p id="no-history" class="no-items hidden">No saved history yet.</p>
+        </div>     
+    </div>
+
+    <!-- Favorites Modal -->
+    <div class="modal list-modal" id="favoritesModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeFavoritesBtn"><i class="fas fa-times"></i></button>
+            <h2>❤️ पसंदीदा</h2>
+            <ul id="favoritesList"></ul>
+            <p id="no-favorites" class="no-items hidden">You have no favorite answers yet.</p>
+        </div>
+    </div>
+
+    <!-- NEW: Camera Modal -->
+    <div id="cameraModal">
+        <button id="closeCameraBtn"><i class="fas fa-times"></i></button>
+        <video id="cameraVideo" autoplay playsinline></video>
+        <div class="camera-controls">
+            <button id="switchCameraBtn" title="कैमरा बदलें"><i class="fas fa-sync-alt"></i></button>
+            <button id="captureBtn" title="फोटो खींचिए"></button>
+            <button id="flashBtn" title="फ़्लैश टॉगल करें"><i class="fas fa-bolt"></i></button>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <button id="menu-toggle-btn">☰</button>
+            <h1>AI Question Solver</h1>
+        </header>
+        <main>
+            <!-- API Key is stored here -->
+            <script id="api-key" type="text/plain">AIzaSyDHy9J04dI8LdK1ijNJMrRXubJ5ucx9rdk</script>
+
+            <div class="form-group">
+                <label for="subjectSelect">Select Subject:</label>
+                <select id="subjectSelect">
+                    <option value="math">Math</option>
+                    <option value="physics">Physics</option>
+                    <option value="chemistry">Chemistry</option>
+                    <option value="biology">Biology</option>
+                    <option value="english">English</option>
+                    <option value="hindi">Hindi</option>
+                    <option value="general">General</option>
+                    <option value="fitnesse">Fitnesse</option>
+
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="questionInput">Enter your question:</label>
+                <textarea id="questionInput" placeholder="Type your question here or use the mic..."></textarea>
+            </div>
+            
+            <div class="input-options">
+                <div class="action-buttons">
+                    <button id="micBtn" title="अपना प्रश्न बोलें"><i class="fas fa-microphone"></i></button>
+                    <button id="cameraBtn" title="छवि कैप्चर करने के लिए कैमरा खोलें"><i class="fas fa-camera"></i></button>
+                    <button id="clearInputBtn" title="इनपुट और आउटपुट साफ़ करें"><i class="fas fa-trash-alt"></i></button>
+                </div>
+                <div class="file-input-wrapper" title="पूछने के लिए एक छवि अपलोड करें">
+                    <input type="file" id="imageInput" accept="image/*">
+                    <i class="fas fa-image"></i>
+                </div>
+            </div>
+            
+            <img id="imagePreview" alt="Image Preview">
+
+            <button id="solveBtn">Solve Question</button>
+            <div id="loading" class="hidden"><div class="loader"></div></div>
+            <div id="error" class="error-box hidden"></div>
+
+            <div id="result" class="hidden">
+                <div class="result-header">
+                    <h3>Solution:</h3>
+                    <div id="result-actions" class="result-actions">
+                        <button id="shareResultBtn" title="Share result"><i class="fas fa-share-alt"></i></button>
+                        <button id="copyResultBtn" title="Copy solution"><i class="fas fa-copy"></i></button>
+                        <button id="speakResultBtn" title="Speak solution"><i class="fas fa-volume-up"></i></button>
+                        <button id="downloadPdfBtn" title="Download as PDF"><i class="fas fa-file-pdf"></i></button>
+                    </div>
+                </div>
+                <div id="resultContent"></div>
+            </div>
+        </main>
+    </div>
+
+<script>
+class AIQuestionSolverApp {
+    constructor() {
+        this.apiKey = document.getElementById('api-key').textContent.trim();
+        this.uploadedImage = null;
+        this.cropper = null;
+        this.synth = window.speechSynthesis;
+        this.isSpeaking = false;
+        this.currentAnswer = { id: null, question: '', image: null, answer: '' };
+        this.history = [];
+        this.favorites = [];
+
+        // Camera specific state
+        this.currentStream = null;
+        this.currentFacingMode = 'environment';
+        
+        this.bindDOMElements();
+        this.bindEvents();
+        this.checkApiKey();
+        this.loadHistory();
+        this.loadFavorites();
+    }
+
+    bindDOMElements() {
+        // Main UI
+        this.solveBtn = document.getElementById('solveBtn');
+        this.questionInput = document.getElementById('questionInput');
+        this.subjectSelect = document.getElementById('subjectSelect');
+        this.loadingEl = document.getElementById('loading');
+        this.errorEl = document.getElementById('error');
+        this.resultEl = document.getElementById('result');
+        this.resultContentEl = document.getElementById('resultContent');
+        this.imageInput = document.getElementById('imageInput');
+        this.imagePreview = document.getElementById('imagePreview');
+        
+        // Action Buttons
+        this.micBtn = document.getElementById('micBtn');
+        this.cameraBtn = document.getElementById('cameraBtn');
+        this.clearInputBtn = document.getElementById('clearInputBtn');
+
+        // Result Actions
+        this.shareResultBtn = document.getElementById('shareResultBtn');
+        this.copyResultBtn = document.getElementById('copyResultBtn');
+        this.speakResultBtn = document.getElementById('speakResultBtn');
+        this.downloadPdfBtn = document.getElementById('downloadPdfBtn');
+        
+        // Side Menu
+        this.menuToggleBtn = document.getElementById('menu-toggle-btn');
+        this.closeMenuBtn = document.getElementById('close-menu-btn');
+        this.sideMenu = document.getElementById('side-menu');
+        this.menuOverlay = document.getElementById('menu-overlay');
+        this.shareAppBtn = document.getElementById('share-app-btn');
+        this.languageSelect = document.getElementById('language-select-menu');
+        this.openHistoryBtn = document.getElementById('openHistoryBtn');
+        this.openFavoritesBtn = document.getElementById('openFavoritesBtn');
+        
+        // Modals
+        this.modals = {
+            crop: document.getElementById('cropModal'),
+            history: document.getElementById('historyModal'),
+            favorites: document.getElementById('favoritesModal'),
+        };
+        this.imageToCrop = document.getElementById('imageToCrop');
+        this.cropBtn = document.getElementById('cropBtn');
+        this.cancelCropBtn = document.getElementById('cancelCropBtn');
+
+        // NEW: Camera Modal Elements
+        this.cameraModal = document.getElementById('cameraModal');
+        this.cameraVideo = document.getElementById('cameraVideo');
+        this.closeCameraBtn = document.getElementById('closeCameraBtn');
+        this.captureBtn = document.getElementById('captureBtn');
+        this.switchCameraBtn = document.getElementById('switchCameraBtn');
+        this.flashBtn = document.getElementById('flashBtn');
+
+        // History & Favorites
+        this.historyList = document.getElementById('historyList');
+        this.noHistoryMsg = document.getElementById('no-history');
+        this.closeHistoryBtn = document.getElementById('closeHistoryBtn');
+        this.downloadHistoryPdfBtn = document.getElementById('downloadHistoryPdfBtn');
+        this.favoritesList = document.getElementById('favoritesList');
+        this.noFavoritesMsg = document.getElementById('no-favorites');
+        this.closeFavoritesBtn = document.getElementById('closeFavoritesBtn');
+    }
+
+    bindEvents() {
+        // Main Actions
+        this.solveBtn.addEventListener('click', () => this.solveQuestion());
+        this.clearInputBtn.addEventListener('click', () => this.clearAll());
+        this.micBtn.addEventListener('click', () => this.handleMicInput());
+        this.imageInput.addEventListener('change', (e) => this.handleImageSelection(e.target.files[0]));
+        
+        // OLD: this.cameraBtn.addEventListener('click', () => this.handleCameraInput());
+        // NEW: Camera button opens the new modal
+        this.cameraBtn.addEventListener('click', () => this.openCamera());
+        
+        // Result Actions
+        this.shareResultBtn.addEventListener('click', () => this.shareResult());
+        this.copyResultBtn.addEventListener('click', () => this.copyResult());
+        this.speakResultBtn.addEventListener('click', () => this.speakResult());
+        this.downloadPdfBtn.addEventListener('click', () => this.downloadPdf());
+
+        // Menu and Modal Toggles
+        this.menuToggleBtn.addEventListener('click', () => this.toggleMenu(true));
+        this.closeMenuBtn.addEventListener('click', () => this.toggleMenu(false));
+        this.menuOverlay.addEventListener('click', () => {
+            this.toggleMenu(false);
+            Object.keys(this.modals).forEach(key => this.toggleModal(key, false));
+        });
+        
+        this.openHistoryBtn.addEventListener('click', () => this.toggleModal('history', true));
+        this.openFavoritesBtn.addEventListener('click', () => this.toggleModal('favorites', true));
+        this.shareAppBtn.addEventListener('click', () => this.shareApp());
+        
+        // Crop Modal
+        this.cropBtn.addEventListener('click', () => this.finalizeCrop());
+        this.cancelCropBtn.addEventListener('click', () => this.toggleModal('crop', false));
+
+        // NEW: Camera Modal Events
+        this.closeCameraBtn.addEventListener('click', () => this.closeCamera());
+        this.captureBtn.addEventListener('click', () => this.captureImage());
+        this.switchCameraBtn.addEventListener('click', () => this.switchCamera());
+        this.flashBtn.addEventListener('click', () => this.toggleFlash());
+
+        // History & Favorites Lists
+        if(this.closeHistoryBtn) this.closeHistoryBtn.addEventListener('click', () => this.toggleModal('history', false));
+        if(this.closeFavoritesBtn) this.closeFavoritesBtn.addEventListener('click', () => this.toggleModal('favorites', false));
+        this.historyList.addEventListener('click', (e) => this.handleListAction(e, 'history'));
+        this.favoritesList.addEventListener('click', (e) => this.handleListAction(e, 'favorites'));
+        this.downloadHistoryPdfBtn.addEventListener('click', () => this.downloadAllHistoryPdf());
+    }
+    
+    // Core AI Functionality
+    checkApiKey() {
+        if (!this.apiKey || this.apiKey.includes('PASTE') || this.apiKey.includes('पेस्ट')) {
+            this.showError('CRITICAL: API Key is missing. Please paste your API key into the HTML file.');
+            this.solveBtn.disabled = true;
+        }
+    }
+
+    async solveQuestion() {
+        const question = this.questionInput.value.trim();
+        if (!question && !this.uploadedImage) {
+            this.showError('Please enter a question or upload an image.');
+            return;
+        }
+        this.setLoading(true);
+        this.hideError();
+        this.hideResult();
+
+        const subject = this.subjectSelect.value;
+        const languageName = this.languageSelect.options[this.languageSelect.selectedIndex].text;
+        const prompt = this.createPrompt(question, subject, languageName);
+        
+        const model = this.uploadedImage ? 'gemini-pro-vision' : 'gemini-1.5-flash-latest';
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.apiKey}`;
+        const requestBody = { contents: [{ parts: [] }] };
+        requestBody.contents[0].parts.push({ "text": prompt });
+        if(this.uploadedImage) {
+            requestBody.contents[0].parts.push({ "inline_data": { "mime_type": this.uploadedImage.mimeType, "data": this.uploadedImage.data } });
+        }
+
+        try {
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || `HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            
+            if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                const content = data.candidates[0].content.parts[0].text;
+                this.currentAnswer = { id: Date.now(), question, image: this.uploadedImage, answer: content, subject };
+                this.displayResult(content);
+                this.addToHistory(this.currentAnswer);
+            } else {
+                 let reason = 'No content returned from AI.';
+                if (data.promptFeedback?.blockReason) reason = `Request blocked. Reason: ${data.promptFeedback.blockReason}`;
+                throw new Error(reason);
+            }
+        } catch (err) {
+            console.error('API Error:', err);
+            this.showError(`An error occurred: ${err.message}.`);
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
+    createPrompt(question, subject, language) {
+        return `You are an expert AI tutor for the subject: **${subject}**. 
+        Solve the following user's question. 
+        Provide a clear, step-by-step, and easy-to-understand explanation. 
+        Format your answer nicely using Markdown. If the question is complex, break it down. 
+        Finally, ensure your entire response is in the **${language}** language.
+        
+        User's Question: "${question}"`;
+    }
+
+    // UI and State Management
+    setLoading(isLoading) {
+        this.loadingEl.classList.toggle('hidden', !isLoading);
+        this.solveBtn.disabled = isLoading;
+        this.solveBtn.textContent = isLoading ? 'Solving...' : 'Solve Question';
+    }
+    showError(message) { this.errorEl.textContent = message; this.errorEl.classList.remove('hidden'); }
+    hideError() { this.errorEl.classList.add('hidden'); }
+
+    displayResult(content) {
+        this.resultContentEl.innerHTML = marked.parse(content);
+        this.resultEl.classList.remove('hidden');
+    }
+
+    hideResult() {
+        if(this.isSpeaking) { this.synth.cancel(); }
+        this.resultEl.classList.add('hidden');
+    }
+
+    clearAll() {
+        this.questionInput.value = '';
+        this.imageInput.value = '';
+        this.imagePreview.style.display = 'none';
+        this.imagePreview.src = '';
+        this.uploadedImage = null;
+        this.currentAnswer = { id: null, question: '', image: null, answer: '' };
+        this.hideResult();
+        this.hideError();
+    }
+
+    toggleMenu(show) {
+        this.sideMenu.classList.toggle('open', show);
+        this.menuOverlay.classList.toggle('active', show);
+        document.body.classList.toggle('menu-active', show);
+    }
+    
+    toggleModal(modalName, show) {
+        const modal = this.modals[modalName];
+        if (modal) {
+            if (show) {
+                if(modalName === 'history') this.renderHistoryList();
+                if(modalName === 'favorites') this.renderFavoritesList();
+                document.body.classList.add('modal-open');
+                modal.classList.add('show');
+                this.menuOverlay.classList.add('active'); // Use same overlay for modals
+            } else {
+                document.body.classList.remove('modal-open');
+                modal.classList.remove('show');
+                if (!this.sideMenu.classList.contains('open')) {
+                    this.menuOverlay.classList.remove('active');
+                }
+                if (modalName === 'crop' && this.cropper) {
+                    this.cropper.destroy();
+                    this.cropper = null;
+                }
+            }
+        }
+    }
+    
+    // NEW & UPDATED: Image, Camera & Cropper
+    handleImageSelection(file) {
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => this.openCropper(e.target.result);
+            reader.readAsDataURL(file);
+        }
+        this.imageInput.value = '';
+    }
+
+    async openCamera() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert("Camera not supported on this browser.");
+            return;
+        }
+        this.cameraModal.style.display = 'flex';
+        document.body.classList.add('modal-open');
+        this.startStream();
+    }
+    
+    async startStream() {
+        this.stopStream(); // Stop any existing stream first
+        const constraints = {
+            video: { 
+                facingMode: this.currentFacingMode,
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            }
+        };
+        try {
+            this.currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+            this.cameraVideo.srcObject = this.currentStream;
+            
+            // Check for flash (torch) capability and show/hide the button
+            const track = this.currentStream.getVideoTracks()[0];
+            const capabilities = track.getCapabilities();
+            this.flashBtn.style.display = capabilities.torch ? 'flex' : 'none';
+
+        } catch (err) {
+            console.error("Camera Error:", err);
+            alert("Could not access camera. Please check permissions and try again.");
+            this.closeCamera();
+        }
+    }
+
+    closeCamera() {
+        this.stopStream();
+        this.cameraModal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+    }
+    
+    stopStream() {
+        if (this.currentStream) {
+            this.currentStream.getTracks().forEach(track => track.stop());
+            this.currentStream = null;
+        }
+    }
+
+    captureImage() {
+        if (!this.currentStream) return;
+        const canvas = document.createElement('canvas');
+        canvas.width = this.cameraVideo.videoWidth;
+        canvas.height = this.cameraVideo.videoHeight;
+        canvas.getContext('2d').drawImage(this.cameraVideo, 0, 0);
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        
+        this.closeCamera();
+        this.openCropper(dataUrl);
+    }
+    
+    switchCamera() {
+        this.currentFacingMode = this.currentFacingMode === 'environment' ? 'user' : 'environment';
+        this.startStream();
+    }
+
+    toggleFlash() {
+        if (!this.currentStream) return;
+        const track = this.currentStream.getVideoTracks()[0];
+        const hasTorch = 'torch' in track.getCapabilities();
+        if (hasTorch) {
+            try {
+                const isTorchOn = track.getSettings().torch;
+                track.applyConstraints({ advanced: [{ torch: !isTorchOn }] });
+            } catch (err) {
+                console.error("Flash Error:", err);
+            }
+        }
+    }
+    
+    openCropper(imageSrc) {
+        this.imageToCrop.src = imageSrc;
+        this.toggleModal('crop', true);
+        if (this.cropper) this.cropper.destroy();
+        this.cropper = new Cropper(this.imageToCrop, { viewMode: 1, dragMode: 'move', autoCropArea: 0.9, responsive: true });
+    }
+
+    finalizeCrop() {
+        if (!this.cropper) return;
+        const canvas = this.cropper.getCroppedCanvas({ imageSmoothingQuality: 'high' });
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        this.imagePreview.src = dataUrl;
+        this.imagePreview.style.display = 'block';
+        this.uploadedImage = { mimeType: 'image/jpeg', data: dataUrl.split(',')[1] };
+        this.toggleModal('crop', false);
+    }
+
+    // History & Favorites Management
+    _getList(type) { return JSON.parse(localStorage.getItem(type)) || []; }
+    _saveList(type, data) { localStorage.setItem(type, JSON.stringify(data)); }
+    
+    loadHistory() { this.history = this._getList('aiSolverHistory_v2'); }
+    saveHistory() { this._saveList('aiSolverHistory_v2', this.history); }
+    addToHistory(item) { this.history.unshift(item); if (this.history.length > 50) this.history.pop(); this.saveHistory(); }
+    
+    loadFavorites() { this.favorites = this._getList('aiSolverFavorites_v2'); }
+    saveFavorites() { this._saveList('aiSolverFavorites_v2', this.favorites); }
+    
+    renderList(type) {
+        const list = (type === 'history') ? this.history : this.favorites;
+        const listEl = (type === 'history') ? this.historyList : this.favoritesList;
+        const noItemsEl = (type === 'history') ? this.noHistoryMsg : this.noFavoritesMsg;
+
+        listEl.innerHTML = '';
+        noItemsEl.classList.toggle('hidden', list.length > 0);
+
+        list.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'list-item';
+            li.dataset.id = item.id;
+            li.innerHTML = `
+                <div class="list-item-content" data-action="load">
+                    ${item.image ? `<img src="data:${item.image.mimeType};base64,${item.image.data}" class="list-item-img" alt="q">` : '<i class="fas fa-comment-dots fa-2x" style="color:#ccc;width:50px;text-align:center;"></i>'}
+                    <div class="list-item-text">
+                        <strong>${(item.question || 'Image Question').substring(0, 50)}...</strong>
+                        <div style="font-size:12px; color:#777;">Subject: ${item.subject || 'N/A'}</div>
+                    </div>
+                </div>
+                <div class="list-item-actions">
+                    <button class="action-pdf" title="Download PDF"><i class="fas fa-file-pdf"></i></button>
+                    <button class="action-delete" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `;
+            listEl.appendChild(li);
+        });
+    }
+    renderHistoryList() { this.renderList('history'); }
+    renderFavoritesList() { this.renderList('favorites'); }
+
+    handleListAction(e, type) {
+        const target = e.target.closest('[data-action], .action-pdf, .action-delete');
+        if (!target) return;
+        const li = target.closest('.list-item');
+        const id = Number(li.dataset.id);
+        const action = target.dataset.action || target.classList[0].replace('action-', '');
+        
+        const list = (type === 'history') ? this.history : this.favorites;
+        const item = list.find(h => h.id === id);
+        if (!item) return;
+
+        if (action === 'load') {
+            this.clearAll();
+            this.questionInput.value = item.question;
+            this.subjectSelect.value = item.subject;
+            if (item.image) {
+                this.uploadedImage = item.image;
+                this.imagePreview.src = `data:${item.image.mimeType};base64,${item.image.data}`;
+                this.imagePreview.style.display = 'block';
+            }
+            this.currentAnswer = item;
+            this.displayResult(item.answer);
+            this.toggleModal(type, false);
+        } else if (action === 'pdf') {
+            this.downloadItemAsPdf(item, `${type}_${item.id}.pdf`);
+        } else if (action === 'delete') {
+            if (confirm(`Are you sure you want to delete this item from ${type}?`)) {
+                if(type === 'history') {
+                    this.history = this.history.filter(h => h.id !== id);
+                    this.saveHistory();
+                    this.renderHistoryList();
+                } else {
+                    this.favorites = this.favorites.filter(f => f.id !== id);
+                    this.saveFavorites();
+                    this.renderFavoritesList();
+                }
+            }
+        }
+    }
+    
+    // Feature Handlers
+    handleMicInput() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) { alert('Speech Recognition not supported.'); return; }
+        const recognition = new SpeechRecognition();
+        recognition.lang = this.languageSelect.value;
+        recognition.onstart = () => this.micBtn.classList.add('is-listening');
+        recognition.onend = () => this.micBtn.classList.remove('is-listening');
+        recognition.onresult = (e) => {
+            this.questionInput.value += (this.questionInput.value ? ' ' : '') + e.results[0][0].transcript;
+        };
+        recognition.onerror = (e) => console.error('Speech recognition error', e.error);
+        recognition.start();
+    }
+
+    copyResult() {
+        if (!this.currentAnswer.answer) { alert('Nothing to copy.'); return; }
+        navigator.clipboard.writeText(this.resultContentEl.innerText).then(() => alert('Copied!')).catch(err => alert('Failed to copy.'));
+    }
+
+    speakResult() {
+        if (!this.synth) { alert('Text-to-speech not supported.'); return; }
+        if (this.isSpeaking) { this.synth.cancel(); return; }
+        if (!this.currentAnswer.answer) { alert('Nothing to speak.'); return; }
+        
+        const utterance = new SpeechSynthesisUtterance(this.resultContentEl.innerText);
+        utterance.lang = this.languageSelect.value;
+        utterance.onstart = () => { this.isSpeaking = true; this.speakResultBtn.classList.add('speaking'); this.speakResultBtn.innerHTML = '<i class="fas fa-stop-circle"></i>'; };
+        utterance.onend = () => { this.isSpeaking = false; this.speakResultBtn.classList.remove('speaking'); this.speakResultBtn.innerHTML = '<i class="fas fa-volume-up"></i>'; };
+        utterance.onerror = (e) => { console.error('TTS error:', e); utterance.onend(); };
+        this.synth.speak(utterance);
+    }
+    
+    async shareResult() {
+        const text = `Question: ${this.currentAnswer.question}\n\nAnswer:\n${this.resultContentEl.innerText}`;
+        if (navigator.share) await navigator.share({ title: 'AI Solution', text, url: window.location.href });
+        else alert('Share not supported.');
+    }
+    
+    async shareApp() {
+        if (navigator.share) await navigator.share({ title: 'AI Question Solver', text: 'Check out this app!', url: window.location.href });
+        else alert('Share not supported.');
+    }
+    
+    // PDF Generation
+    async downloadPdf() {
+        if (!this.currentAnswer.answer) { alert('No result to download.'); return; }
+        await this.downloadItemAsPdf(this.currentAnswer, 'AI_Solution.pdf');
+    }
+    
+    async downloadAllHistoryPdf() {
+        if(this.history.length === 0) { alert("History is empty."); return; }
+        alert('Preparing PDF for all history items...');
+        const combinedContent = document.createElement('div');
+        this.history.forEach((item, i) => {
+            combinedContent.innerHTML += this.createPdfItemHtml(item, `History Item #${i + 1}`);
+        });
+        await this.generatePdfFromElement(combinedContent, 'AI_Solver_All_History.pdf');
+    }
+
+    async downloadItemAsPdf(item, filename) {
+        alert('Preparing PDF...');
+        const pdfContent = document.createElement('div');
+        pdfContent.innerHTML = this.createPdfItemHtml(item, 'Solution');
+        await this.generatePdfFromElement(pdfContent, filename);
+    }
+    
+    createPdfItemHtml(item, title) {
+        const container = document.createElement('div');
+        container.style.cssText = 'padding: 20px; font-family: sans-serif; page-break-after: always;';
+        container.innerHTML = `
+            <h2 style="color:#333; border-bottom:1px solid #ccc; padding-bottom:5px;">${title}</h2>
+            <p><strong>Subject:</strong> ${item.subject}</p>
+            <p><strong>Question:</strong> ${item.question}</p>
+            ${item.image ? `<img src="data:${item.image.mimeType};base64,${item.image.data}" style="max-width:100%; border:1px solid #eee; margin-top:10px;">` : ''}
+            <hr style="margin:20px 0;">
+            <div style="line-height:1.6;">${marked.parse(item.answer)}</div>`;
+        return container.outerHTML;
+    }
+
+    async generatePdfFromElement(element, filename) {
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'width: 700px; visibility: hidden; position: absolute; left: -9999px;';
+        wrapper.appendChild(element);
+        document.body.appendChild(wrapper);
+        try {
+            const { jsPDF } = window.jspdf;
+            const canvas = await html2canvas(wrapper, { scale: 2, useCORS: true });
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const imgProps = pdf.getImageProperties(canvas);
+            const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            let heightLeft = imgHeight, position = 10;
+            pdf.addImage(canvas, 'PNG', 5, position, pdfWidth - 10, imgHeight);
+            heightLeft -= (pdf.internal.pageSize.getHeight() - 20);
+            while (heightLeft > 0) {
+                position = -heightLeft - 10;
+                pdf.addPage();
+                pdf.addImage(canvas, 'PNG', 5, position, pdfWidth - 10, imgHeight);
+                heightLeft -= (pdf.internal.pageSize.getHeight() - 20);
+            }
+            pdf.save(filename);
+        } catch (error) { console.error("PDF Error:", error); alert("Sorry, failed to create PDF."); }
+        finally { document.body.removeChild(wrapper); }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => { new AIQuestionSolverApp(); });
+</script>
+
+</body>
+</html>
